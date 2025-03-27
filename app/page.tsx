@@ -1,0 +1,420 @@
+"use client"
+import Link from "next/link"
+import Image from "next/image"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users } from "lucide-react"
+import { useRouter } from "next/navigation";
+export default function LandingPage() {
+  const router = useRouter();
+  const handleSubmit = (e: React.FormEvent)=>{
+    e.preventDefault();
+    router.push("/search")
+  }
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
+      <main className="flex-grow">
+        {/* Hero Section with improved gradient background */}
+        <section className="bg-[#00214D]  py-16 md:py-24 relative overflow-hidden">
+
+          {/* Abstract shapes with reduced opacity for better contrast */}
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6 ">
+                {/* Improved badge visibility with darker text */}
+                <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
+                  <Zap size={16} className="mr-1" /> 10,000+ Jobs Available Now
+                </div>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                  Your Career <span className="text-yellow-400">Evolution</span> Starts Here
+                </h1>
+                <p className="text-xl text-white">
+                  Connecting talented professionals with innovative companies to create the perfect match.
+                </p>
+
+                {/* Enhanced Search Bar with improved icon contrast */}
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-5xl mx-auto">
+  <div className="flex flex-col gap-4">
+    {/* Search form */}
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
+      {/* Skills input */}
+      <div className="relative md:col-span-5">
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
+          <Search size={18} />
+        </div>
+        <input
+          type="text"
+          placeholder="Job title, skills, or company"
+          className="w-full pl-10 pr-4 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all bg-white"
+        />
+      </div>
+      
+      {/* Region selector */}
+      <div className="relative md:col-span-5">
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
+          <MapPin size={18} />
+        </div>
+        <select
+          className="w-full appearance-none bg-white pl-10 pr-10 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all cursor-pointer"
+        >
+          <option value="">All Regions</option>
+          <option value="Ashanti">Ashanti</option>
+          <option value="Greater Accra">Greater Accra</option>
+          <option value="Northern">Northern</option>
+          <option value="Volta">Volta</option>
+          <option value="Central">Central</option>
+          <option value="Western">Western</option>
+          <option value="Upper-West">Upper-West</option>
+          <option value="Upper-East">Upper-East</option>
+          <option value="Oti">Oti</option>
+          <option value="Savannah">Savannah</option>
+          <option value="Bono East">Bono East</option>
+          <option value="Western North">Western North</option>
+          <option value="Brong Ahafo">Brong Ahafo</option>
+          <option value="North East">North East</option>
+          <option value="Ahafo">Ahafo</option>
+          <option value="Eastern">Eastern</option>
+        </select>
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-yellow-800">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      
+      {/* Search button */}
+      <button 
+        type="submit"
+        className="md:col-span-2 py-3 px-4 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center"
+      >
+        <Search size={18} className="mr-1" />
+      </button>
+    </form>
+  </div>
+</div>
+
+                <div className="flex flex-wrap gap-3 text-sm">
+                  <span className="text-white font-medium">Trending:</span>
+                  {["Remote", "Full-time", "Tech", "Healthcare", "Marketing"].map((tag, index) => (
+                    <Link 
+                      key={index} 
+                      href="#" 
+                      className="px-3 py-1 bg-yellow-600 text-white rounded-full border border-yellow-800 hover:bg-yellow-900 hover:border-yellow-900 transition-colors"
+                    >
+                      {tag}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interactive Elements with better contrast */}
+              <div className="lg:block relative rounded-lg ">
+                <div className="bg-white bg-opacity-90 rounded-2xl shadow-xl p-6 relative">
+                  {/* Active Job Seekers Card */}
+                  <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">
+                    <Users size={24} />
+                    <div>
+                      <p className="text-sm font-medium">2,547</p>
+                      <p className="text-xs">active now</p>
+                    </div>
+                  </div>
+                  
+                  {/* Featured Job Cards - Improved border color for better visibility */}
+                  <div className="space-y-4 mt-6">
+                    {[
+                      { role: "Senior Developer", company: "TechCorp", salary: "$120K-$150K", location: "Remote", new: true },
+                      { role: "Marketing Manager", company: "GrowthCo", salary: "$90K-$110K", location: "New York, NY", new: false },
+                      { role: "UX Designer", company: "CreativeLabs", salary: "$85K-$105K", location: "San Francisco, CA", new: true }
+                    ].map((job, index) => (
+                      <div 
+                        key={index} 
+                        className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${index === 0 ? 'z-30' : index === 1 ? 'z-20 -mt-2 ml-2' : 'z-10 -mt-2 ml-4'}`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold">{job.role}</h3>
+                              {job.new && (
+                                <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
+                                  New
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">{job.company}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-[#00214D]">{job.salary}</p>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <MapPin size={12} className="mr-1" />
+                              {job.location}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Success Metrics - Improved colors for better visibility */}
+                  <div className="mt-8 bg-blue-50 p-4 rounded-xl">
+                    <div className="text-center mb-2">
+                      <p className="text-sm font-medium text-gray-700">Job Success Rate</p>
+                    </div>
+                    
+                    {/* Simple Bar Chart with better contrast */}
+                    <div className="flex h-6 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="bg-[#00214D] w-3/4 rounded-l-full"></div>
+                      <div className="bg-yellow-600 w-1/6"></div>
+                      <div className="bg-orange-400 w-1/12 rounded-r-full"></div>
+                    </div>
+                    
+                    <div className="flex justify-between mt-2 text-xs text-gray-600">
+                      <span>Hired (75%)</span>
+                      <span>Interview (17%)</span>
+                      <span>Pending (8%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Bar with improved icon color */}
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
+              {[
+                { count: "10M+", label: "Job Seekers", icon: Users },
+                { count: "85K+", label: "Companies", icon: Briefcase },
+                { count: "150K", label: "Jobs Posted", icon: TrendingUp },
+                { count: "95%", label: "Success Rate", icon: Zap },
+              ].map((stat, index) => (
+                <div key={index} className="bg-white bg-opacity-90 p-4 rounded-xl shadow-md">
+                  <stat.icon className="mx-auto h-8 w-8 text-[#00214D] mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">{stat.count}</p>
+                  <p className="text-sm text-gray-600">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section with improved badge and highlight colors */}
+        <section className="py-16 md:py-24 bg-white ">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
+                Why choose us
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Redefining How You Find Your Dream Career</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                More than just a job board, we provide tools and resources to help you thrive in your career journey.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "Smart Job Matching",
+                  description: "Our AI-powered algorithm matches your skills and preferences with the perfect opportunities.",
+                  icon: <Briefcase className="text-[#00214D]" size={32} />,
+                  highlight: "93% match accuracy"
+                },
+                {
+                  title: "Secure Communication",
+                  description: "Connect directly with employers through our encrypted messaging system for seamless interactions.",
+                  icon: <MessageSquare className="text-[#00214D]" size={32} />,
+                  highlight: "Fast response time"
+                },
+                {
+                  title: "Protected Payments",
+                  description: "Our escrow system ensures freelancers get paid and employers receive quality work as promised.",
+                  icon: <Shield className="text-[#00214D]" size={32} />,
+                  highlight: "100% money-back guarantee"
+                }
+              ].map((feature, index) => (
+                <div key={index} className="bg-gray-50 p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[#00214D] hover:opacity-80 h-full flex flex-col">
+                  <div className="w-16 h-16 bg-[#00214D] bg-opacity-10 rounded-2xl flex items-center justify-center mb-6">
+                    {feature.icon}
+                  </div>
+                  <div className="space-y-3 flex-grow">
+                    <h3 className="text-xl font-bold text-blue-900">{feature.title}</h3>
+                    <p className="text-gray-600">
+                      {feature.description}
+                    </p>
+                  </div>
+                  <div className="mt-6 inline-flex items-center text-sm font-medium text-blue-700">
+                    <span className="px-2 py-1 bg-blue-100 rounded-full text-xs mr-2">{feature.highlight}</span>
+                    <Link href="#" className="flex items-center hover:underline hover:opacity-80">
+                      Learn more <ChevronRight size={16} className="ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Categories Section with improved colors and contrast */}
+        <section className="py-16 md:py-24 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
+                Endless Opportunities
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Explore Jobs by Category</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Discover your perfect role across industries and specializations.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[
+                { name: "Technology", icon: "💻", color: "bg-[#00214D] bg-opacity-10 text-[#00214D]", jobs: "5,234" },
+                { name: "Marketing", icon: "📊", color: "bg-purple-100 text-purple-600", jobs: "3,187" },
+                { name: "Design", icon: "🎨", color: "bg-yellow-100 text-yellow-700", jobs: "2,945" },
+                { name: "Finance", icon: "💰", color: "bg-green-100 text-green-700", jobs: "4,126" },
+                { name: "Healthcare", icon: "🏥", color: "bg-red-100 text-red-600", jobs: "3,752" },
+                { name: "Education", icon: "🎓", color: "bg-indigo-100 text-indigo-600", jobs: "2,318" },
+                { name: "Engineering", icon: "⚙️", color: "bg-gray-100 text-gray-600", jobs: "3,547" },
+                { name: "Customer Service", icon: "🤝", color: "bg-pink-100 text-pink-600", jobs: "2,863" },
+              ].map((category, index) => (
+                <Link
+                  href="#"
+                  key={index}
+                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all group border border-gray-100 hover:border-[#00214D] hover:opacity-80 flex flex-col h-full"
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${category.color} group-hover:scale-110 transition-transform`}>
+                    <span className="text-2xl">{category.icon}</span>
+                  </div>
+                  <h3 className="font-bold text-lg text-[#00214D] group-hover:text-[#00214D] group-hover:opacity-80 transition-colors">{category.name}</h3>
+                  <div className="mt-2 inline-flex items-center text-sm text-gray-500">
+                    <span className="font-medium text-[#00214D] mr-1">{category.jobs}</span> open positions
+                  </div>
+                  <div className="mt-auto pt-4">
+                    <span className="text-[#00214D] text-sm font-medium group-hover:underline group-hover:opacity-80 inline-flex items-center">
+                      Browse Jobs <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Link
+                href="#"
+                className="inline-flex items-center px-6 py-3 shadow-sm text-base font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-900 transition duration-200"
+              >
+                View All Categories
+                <ChevronRight size={18} className="ml-2" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section with improved colors */}
+        <section className="py-16 md:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
+                Success Stories
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">From Our Satisfied Users</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Join thousands who have already transformed their careers with ALL JOBS.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  name: "Sarah Johnson",
+                  role: "Senior Developer at TechCorp",
+                  image: "/placeholder.svg?height=80&width=80",
+                  quote: "I found my dream job at a tech startup within just two weeks of using ALL JOBS. The platform is intuitive and the job matching algorithm is spot on!",
+                  rating: 5
+                },
+                {
+                  name: "Michael Chen",
+                  role: "Head of Marketing at GrowthCo",
+                  image: "/placeholder.svg?height=80&width=80",
+                  quote: "As an employer, I've been able to find qualified candidates quickly. The filtering options and direct messaging feature have saved us so much time in our hiring process.",
+                  rating: 5
+                },
+                {
+                  name: "Jessica Williams",
+                  role: "Freelance UX Designer",
+                  image: "/placeholder.svg?height=80&width=80",
+                  quote: "The freelance section of ALL JOBS has transformed my career. I've connected with amazing clients and the secure payment system gives me peace of mind.",
+                  rating: 4
+                }
+              ].map((testimonial, index) => (
+                <div key={index} className="bg-gray-50 p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-[#00214D] hover:opacity-80 h-full flex flex-col">
+                  <div className="flex-grow">
+                    <div className="flex text-yellow-600 mb-4">
+                      {Array(5).fill(0).map((_, i) => (
+                        <span key={i}>{i < testimonial.rating ? "★" : "☆"}</span>
+                      ))}
+                    </div>
+                    <p className="text-gray-700 italic mb-6">
+                      "{testimonial.quote}"
+                    </p>
+                  </div>
+                  <div className="flex items-center mt-auto pt-4 border-t border-gray-200">
+                    <Image
+                      src={testimonial.image}
+                      alt={`${testimonial.name} Avatar`}
+                      width={60}
+                      height={60}
+                      className="rounded-full border-4 border-white shadow"
+                    />
+                    <div className="ml-4">
+                      <h4 className="font-bold text-lg text-[#00214D]">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-600">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section with improved contrast */}
+        <section className="py-16 md:py-24 bg-[#00214D]  relative overflow-hidden">
+          {/* Abstract shapes with reduced opacity */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-400 opacity-10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-yellow-400 opacity-10 rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-xl border border-white border-opacity-20">
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-white">
+                  Ready to Accelerate Your Career?
+                </h2>
+                <p className="text-xl text-white text-opacity-90 mb-8">
+                  Join over 10 million professionals who have already found their dream jobs through our platform.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/jobs"
+                    className="px-8 py-4 bg-yellow-600 text-white font-bold rounded-xl transition duration-200 ease-in-out shadow-lg hover:shadow-xl hover:bg-yellow-900 text-lg"
+                  >
+                    Browse Jobs
+                  </Link>
+                </div>
+                <p className="text-white text-opacity-80 mt-6 text-sm">
+                  Free to join • No credit card required • Cancel anytime
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  )
+}
