@@ -111,9 +111,9 @@ export const userService = {
   // handle subscription payment success
   async handleSubscriptionPaymentSuccess(paymentIntentId: string, planId: string) {
     try {
-      const response = await axios.post(`${API_URL}/api/v1/user/subscription-payment-success`, {
+      const response = await axios.post(`${API_URL}/api/v1/user/buy-subscription`, {
         paymentIntentId,
-        planId
+        subscriptionId:planId
       }, {
         withCredentials: true
       });

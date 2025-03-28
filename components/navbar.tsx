@@ -5,7 +5,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { 
   Menu, ChevronDown, Bookmark, Briefcase, Calculator, Building2, LogIn, 
-  Search, Bell, User, Heart, LogOut, Group, LucideIcon, MessageCircle
+  Search, Bell, User, Heart, LogOut, Group, LucideIcon, MessageCircle,
+  Paperclip,
+  Newspaper
 } from "lucide-react"
 
 import {
@@ -361,12 +363,21 @@ export default function Navbar() {
           </DropdownMenuItem>
         )}
        
+
+       <DropdownMenuItem asChild className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
+          <Link href={`/build-resume`} className="flex items-center gap-2 cursor-pointer">
+            <Newspaper  className="h-4 w-4" />
+            <span>Build Resume</span>
+          </Link>
+        </DropdownMenuItem>
+
         <DropdownMenuItem asChild className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
           <Link href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`} className="flex items-center gap-2 cursor-pointer">
             <LogOut className="h-4 w-4" />
             <span>Sign Out</span>
           </Link>
         </DropdownMenuItem>
+     
       </DropdownMenuContent>
     </DropdownMenu>
   );

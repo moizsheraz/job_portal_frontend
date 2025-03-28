@@ -6,9 +6,11 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
-import { createPaymentIntent, handlePaymentSuccess } from '@/app/services/JobService'
+import { createPaymentIntent, handlePaymentSuccess,createJob } from '@/app/services/JobService'
+import { userService } from "../services/userService"
 import { PaymentForm } from "@/components/PaymentForm"
 import axios from 'axios'
+import { UserData } from "../profile/types"
 
 // Type definitions
 type JobType = "Onsite" | "Remote" | "Hybrid"
@@ -84,6 +86,7 @@ export default function PostJobPage() {
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [hasExistingCompany, setHasExistingCompany] = useState(false);
   const [existingCompanyData, setExistingCompanyData] = useState<CompanyData | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [currentInput, setCurrentInput] = useState({
     tags: '',
     skills: ''
@@ -151,6 +154,20 @@ export default function PostJobPage() {
     checkExistingCompany();
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await userService.getCurrentUser();
+        console.log(userData);
+        setUser(userData);
+    
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
   // Generic handler for text inputs
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -205,12 +222,24 @@ export default function PostJobPage() {
       [field]: prev[field].filter(i => i !== item)
     }))
   }
+ 
 
   // Form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    console.log(user);
+   if(user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
+    const jobData = {
+      ...formData,
+      title: formData.jobTitle,
+      location: `${formData.region}, ${formData.city}`
+    };
+    await createJob( jobData, 
+      hasExistingCompany ? undefined : companyData);
+      toast.success('Job posted successfully! Redirecting to homepage...');
+      router.push('/');
+   }else{
     try {
       // Create payment intent first
       const amount = 50;
@@ -228,6 +257,8 @@ export default function PostJobPage() {
     } finally {
       setIsLoading(false);
     }
+   }
+  
   };
 
   const handlePaymentFormSuccess = async () => {
@@ -764,7 +795,7 @@ export default function PostJobPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full sm:w-auto px-8 py-3 rounded-xl bg-yellow-900 text-white font-medium hover:bg-yellow-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-8 py-3 rounded-xl bg-yellow-600 text-white font-medium hover:bg-yellow-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>

@@ -24,6 +24,11 @@ export interface UserData {
   savedJobs: string[];
   createdAt: string;
   isFreelancer: boolean;
+  subscription: {
+    startDate: string;
+    endDate: string;
+    name: string;
+  };
 }
 
 export interface Job {

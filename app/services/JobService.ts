@@ -57,6 +57,21 @@ export const handlePaymentSuccess = async (jobData: JobData, paymentIntentId: st
     throw new Error(error.response?.data?.message || 'Failed to confirm job payment');
   }
 };
+export const createJob = async (jobData: JobData, companyData?: any) => {
+  try {
+    const response = await axios.post(`${API_URL}/job/`, {
+      jobData,
+      companyData
+    }, {
+      withCredentials: true
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Failed to confirm job payment');
+  }
+};
+
 
 export interface JobResponse {
   success: boolean;

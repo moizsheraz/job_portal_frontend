@@ -570,13 +570,13 @@ export default function JobsPage() {
                               {job.skillsRequired.slice(0, 5).map((skill, index) => (
                                 <span
                                   key={index}
-                                  className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                                  className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full"
                                 >
                                   {skill}
                                 </span>
                               ))}
                               {job.skillsRequired.length > 5 && (
-                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
                                   +{job.skillsRequired.length - 5} more
                                 </span>
                               )}
