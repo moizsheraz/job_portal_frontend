@@ -229,7 +229,7 @@ export default function PostJobPage() {
     e.preventDefault();
     setIsLoading(true);
     console.log(user);
-   if(user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
+   if(user?.subscription && user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
     const jobData = {
       ...formData,
       title: formData.jobTitle,

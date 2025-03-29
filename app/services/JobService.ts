@@ -107,7 +107,7 @@ export interface Job {
 
 export const getJob = async (id: string): Promise<Job> => {
   try {
-    const response = await axios.get(`${API_URL}/jobs/${id}`);
+    const response = await axios.get(`${API_URL}/jobs/${id}`,{withCredentials:true});
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Failed to fetch job details');
