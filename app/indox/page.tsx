@@ -62,7 +62,7 @@ interface TypingData {
   isTyping: boolean;
 }
 
-const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000', {
+const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
   withCredentials: true,
   transports: ['websocket', 'polling'],
   autoConnect: true,

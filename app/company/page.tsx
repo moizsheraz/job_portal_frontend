@@ -28,7 +28,7 @@ interface FormDataType {
 }
 
 export default function CompanyProfile(): JSX.Element {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   
   // Company data state
   const [company, setCompany] = useState<CompanyData | null>(null);

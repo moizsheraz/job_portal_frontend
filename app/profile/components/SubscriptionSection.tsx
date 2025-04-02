@@ -37,7 +37,7 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
     const fetchSubscriptionPlans = async () => {
       try {
         setLoadingPlans(true);
-        const response = await fetch('http://localhost:5000/api/v1/get-all-sub');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/get-all-sub`)
         const data = await response.json();
         
         if (data.success) {

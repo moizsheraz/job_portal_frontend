@@ -130,7 +130,7 @@ export default function PostJobPage() {
   useEffect(() => {
     const checkExistingCompany = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/get-user-company', {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/get-user-company`, {
           withCredentials: true
         });
         

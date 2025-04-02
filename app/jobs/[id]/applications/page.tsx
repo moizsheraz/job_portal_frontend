@@ -6,6 +6,7 @@ import {
   Users, Search, Filter, Star, Briefcase,
   Mail, Phone, MapPin, Building, MessageSquare
 } from 'lucide-react';
+import { io } from 'socket.io-client';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { toast, Toaster } from 'react-hot-toast';
@@ -53,6 +54,15 @@ export default function ApplicationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
+    withCredentials: true,
+    transports: ['websocket', 'polling'],
+    autoConnect: true,
+    path: '/socket.io',
+    extraHeaders: {
+      'Access-Control-Allow-Credentials': 'true'
+    }
+  });
 
   useEffect(() => {
     fetchJobApplicants();
@@ -76,12 +86,28 @@ export default function ApplicationsPage() {
 
   const handleShortlist = async (candidateId: string, action: 'add' | 'remove') => {
     try {
-      await axios.post(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/job/${params.id}/shortlist/${candidateId}`,
         { action },
         { withCredentials: true }
       );
-      toast.success(action === 'add' ? 'Candidate shortlisted' : 'Candidate removed from shortlist');
+  
+      if (action === 'add' && socket) {
+        const applicant = job?.applicants.find(app => app._id === candidateId);
+        
+        if (applicant) {
+          socket.emit('send-notification', {
+            recipientId: candidateId,
+            type: 'shortlisted',  
+            message: `You've been shortlisted for ${job?.title}`,
+          });
+        }
+      }
+  
+      toast.success(action === 'add' 
+        ? 'Candidate shortlisted successfully' 
+        : 'Candidate removed from shortlist');
+      
       fetchJobApplicants();
     } catch (error: any) {
       console.error('Error updating shortlist:', error);
