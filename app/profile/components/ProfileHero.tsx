@@ -30,31 +30,33 @@ export default function ProfileHero({
       <div className="relative z-10 w-full max-w-md mx-auto flex flex-col items-center justify-center text-white text-center px-4">
         {/* Profile picture with edit button */}
         <motion.div 
-          className="relative mb-4"
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <Image
-            src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.profilePicture}`}
-            alt="Profile Picture"
-            width={128}
-            height={128}
-            className="rounded-full border-4 border-white shadow-lg object-cover"
-          />
-          <label 
-            htmlFor="photo-upload" 
-            className="absolute bottom-0 right-0 bg-yellow-600 text-white p-2 rounded-full hover:bg-green-700 transition-all duration-300 shadow-md cursor-pointer hover:scale-110 hover:shadow-lg"
-          >
-            <PencilIcon className="h-4 w-4" />
-            <input 
-              id="photo-upload" 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={handlePhotoChange}
-            />
-          </label>
-        </motion.div>
+  className="relative mb-4 w-32 h-32"
+  whileHover={{ scale: 1.05 }}
+  transition={{ type: "spring", stiffness: 300 }}
+>
+  <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-lg">
+    <Image
+      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.profilePicture}`}
+      alt="Profile Picture"
+      width={128}
+      height={128}
+      className="w-full h-full object-cover"
+    />
+  </div>
+  <label 
+    htmlFor="photo-upload" 
+    className="absolute bottom-0 right-0 bg-yellow-600 text-white p-2 rounded-full hover:bg-green-700 transition-all duration-300 shadow-md cursor-pointer hover:scale-110 hover:shadow-lg"
+  >
+    <PencilIcon className="h-4 w-4" />
+    <input 
+      id="photo-upload" 
+      type="file" 
+      accept="image/*" 
+      className="hidden" 
+      onChange={handlePhotoChange}
+    />
+  </label>
+</motion.div>
         
         {/* Name field - edit mode or display mode */}
         <div className="w-full max-w-xs mb-4">
