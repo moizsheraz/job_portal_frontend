@@ -3,8 +3,9 @@ import Link from "next/link"
 import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users } from "lucide-react"
+import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper } from "lucide-react"
 import { useRouter } from "next/navigation";
+
 export default function LandingPage() {
   const router = useRouter();
   const handleSubmit = (e: React.FormEvent)=>{
@@ -17,18 +18,17 @@ export default function LandingPage() {
 
       <main className="flex-grow">
         {/* Hero Section with improved gradient background */}
-        <section className="bg-[#00214D]  py-16 md:py-24 relative overflow-hidden">
-
+        <section className="bg-[#00214D] py-16 md:py-24 relative overflow-hidden">
           {/* Abstract shapes with reduced opacity for better contrast */}
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6 ">
+              <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
-                <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
-                  <Zap size={16} className="mr-1" /> 10,000+ Jobs Available Now
+                <div className="inline-flex text-red-600 items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
+                  <Zap size={16} className="mr-1" /> 1,000+ Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Your Career <span className="text-yellow-400">Evolution</span> Starts Here
@@ -37,66 +37,76 @@ export default function LandingPage() {
                   Connecting talented professionals with innovative companies to create the perfect match.
                 </p>
 
+                {/* Added Resume Builder Link */}
+                <div className="flex items-center gap-4">
+                  <Link 
+                    href="/build-resume"
+                    className="inline-flex gap-2 text-red-600 text-xl  items-center px-6 py-3 bg-yellow-600 font-bold rounded-xl  hover:opacity-80"
+                  >
+                    Build Resume <Newspaper/>
+                  </Link>
+                </div>
+
                 {/* Enhanced Search Bar with improved icon contrast */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-5xl mx-auto">
-  <div className="flex flex-col gap-4">
-    {/* Search form */}
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
-      {/* Skills input */}
-      <div className="relative md:col-span-5">
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-          <Search size={18} />
-        </div>
-        <input
-          type="text"
-          placeholder="Job title, skills, or company"
-          className="w-full pl-10 pr-4 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all bg-white"
-        />
-      </div>
-      
-      {/* Region selector */}
-      <div className="relative md:col-span-5">
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-          <MapPin size={18} />
-        </div>
-        <select
-          className="w-full appearance-none bg-white pl-10 pr-10 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all cursor-pointer"
-        >
-          <option value="">All Regions</option>
-          <option value="Ashanti">Ashanti</option>
-          <option value="Greater Accra">Greater Accra</option>
-          <option value="Northern">Northern</option>
-          <option value="Volta">Volta</option>
-          <option value="Central">Central</option>
-          <option value="Western">Western</option>
-          <option value="Upper-West">Upper-West</option>
-          <option value="Upper-East">Upper-East</option>
-          <option value="Oti">Oti</option>
-          <option value="Savannah">Savannah</option>
-          <option value="Bono East">Bono East</option>
-          <option value="Western North">Western North</option>
-          <option value="Brong Ahafo">Brong Ahafo</option>
-          <option value="North East">North East</option>
-          <option value="Ahafo">Ahafo</option>
-          <option value="Eastern">Eastern</option>
-        </select>
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-yellow-800">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-      
-      {/* Search button */}
-      <button 
-        type="submit"
-        className="md:col-span-2 py-3 px-4 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center"
-      >
-        <Search size={18} className="mr-1" />
-      </button>
-    </form>
-  </div>
-</div>
+                  <div className="flex flex-col gap-4">
+                    {/* Search form */}
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                      {/* Skills input */}
+                      <div className="relative md:col-span-5">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
+                          <Search size={18} />
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Job title, skills, or company"
+                          className="w-full pl-10 pr-4 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all bg-white"
+                        />
+                      </div>
+                      
+                      {/* Region selector */}
+                      <div className="relative md:col-span-5">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
+                          <MapPin size={18} />
+                        </div>
+                        <select
+                          className="w-full appearance-none bg-white pl-10 pr-10 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all cursor-pointer"
+                        >
+                          <option value="">All Regions</option>
+                          <option value="Ashanti">Ashanti</option>
+                          <option value="Greater Accra">Greater Accra</option>
+                          <option value="Northern">Northern</option>
+                          <option value="Volta">Volta</option>
+                          <option value="Central">Central</option>
+                          <option value="Western">Western</option>
+                          <option value="Upper-West">Upper-West</option>
+                          <option value="Upper-East">Upper-East</option>
+                          <option value="Oti">Oti</option>
+                          <option value="Savannah">Savannah</option>
+                          <option value="Bono East">Bono East</option>
+                          <option value="Western North">Western North</option>
+                          <option value="Brong Ahafo">Brong Ahafo</option>
+                          <option value="North East">North East</option>
+                          <option value="Ahafo">Ahafo</option>
+                          <option value="Eastern">Eastern</option>
+                        </select>
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-yellow-800">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      {/* Search button */}
+                      <button 
+                        type="submit"
+                        className="md:col-span-2 py-3 px-4 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center"
+                      >
+                        <Search size={18} className="mr-1" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
@@ -113,7 +123,7 @@ export default function LandingPage() {
               </div>
 
               {/* Interactive Elements with better contrast */}
-              <div className="lg:block relative rounded-lg ">
+              <div className="lg:block relative rounded-lg">
                 <div className="bg-white bg-opacity-90 rounded-2xl shadow-xl p-6 relative">
                   {/* Active Job Seekers Card */}
                   <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">
@@ -124,7 +134,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   
-                  {/* Featured Job Cards - Improved border color for better visibility */}
+                  {/* Featured Job Cards */}
                   <div className="space-y-4 mt-6">
                     {[
                       { role: "Senior Developer", company: "TechCorp", salary: "$120K-$150K", location: "Remote", new: true },
@@ -159,19 +169,16 @@ export default function LandingPage() {
                     ))}
                   </div>
                   
-                  {/* Success Metrics - Improved colors for better visibility */}
+                  {/* Success Metrics */}
                   <div className="mt-8 bg-blue-50 p-4 rounded-xl">
                     <div className="text-center mb-2">
                       <p className="text-sm font-medium text-gray-700">Job Success Rate</p>
                     </div>
-                    
-                    {/* Simple Bar Chart with better contrast */}
                     <div className="flex h-6 bg-gray-200 rounded-full overflow-hidden">
                       <div className="bg-[#00214D] w-3/4 rounded-l-full"></div>
                       <div className="bg-yellow-600 w-1/6"></div>
                       <div className="bg-orange-400 w-1/12 rounded-r-full"></div>
                     </div>
-                    
                     <div className="flex justify-between mt-2 text-xs text-gray-600">
                       <span>Hired (75%)</span>
                       <span>Interview (17%)</span>
@@ -182,7 +189,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Stats Bar with improved icon color */}
+            {/* Stats Bar */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
               {[
                 { count: "10M+", label: "Job Seekers", icon: Users },
@@ -200,8 +207,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features Section with improved badge and highlight colors */}
-        <section className="py-16 md:py-24 bg-white ">
+        {/* Features Section */}
+        <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
@@ -256,7 +263,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Categories Section with improved colors and contrast */}
+        {/* Categories Section */}
         <section className="py-16 md:py-24 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -313,7 +320,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Testimonials Section with improved colors */}
+        {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -380,9 +387,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* CTA Section with improved contrast */}
-        <section className="py-16 md:py-24 bg-[#00214D]  relative overflow-hidden">
-          {/* Abstract shapes with reduced opacity */}
+        {/* CTA Section */}
+        <section className="py-16 md:py-24 bg-[#00214D] relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-yellow-400 opacity-10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-yellow-400 opacity-10 rounded-full blur-3xl"></div>
@@ -413,6 +419,17 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
+
+      {/* Sticky WhatsApp Icon */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Link
+          href="https://wa.me/1234567890"
+          target="_blank"
+          className="bg-white p-2 rounded-full shadow-lg  transition-colors duration-200 flex items-center justify-center"
+        >
+         <img src="./icons8-whatsapp.gif" alt="WhatsApp" width={40} height={40} className="text-white" />
+        </Link>
+      </div>
 
       <Footer />
     </div>

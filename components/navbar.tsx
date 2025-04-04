@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { Home } from "lucide-react"
 import { 
   Menu, ChevronDown, Bookmark, Briefcase, Calculator, Building2, LogIn, 
   Search, Bell, User, Heart, LogOut, Group, LucideIcon, MessageCircle,
@@ -26,6 +27,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { userService } from "@/app/services/userService"
+import { usePathname } from "next/navigation"
 
 // Types
 interface CategoryItem {
@@ -128,9 +130,10 @@ const vocationalJobs: JobItem[] = [
 ]
 
 const navLinks: NavLink[] = [
-  { title: "Blog", href: "/blog", icon: Bookmark },
-  { title: "Contact Us", href: "/contact", icon: Briefcase },
-  { title: "About Us", href: "/about", icon: Calculator },
+  {title: "Home", href: "/", icon: Home},
+  // { title: "Blog", href: "/blog", icon: Bookmark },
+  { title: "Contact Us", href: "/contact", icon: MessageCircle },
+  { title: "About Us", href: "/about", icon: Group },
 ]
 
 // Components
@@ -230,11 +233,18 @@ function Logo() {
           className="transition-transform duration-300 group-hover:scale-110"
         />
       </div>
+      <span className="font-bold text-2xl tracking-tight">
+        <span className="text-purple-600">A</span>
+        <span className="text-green-600">LL</span>
+        <span className="text-yellow-600">JOBS</span>
+        <span className="text-red-500">GH</span>
+      </span>
     </Link>
   )
 }
 
 export default function Navbar() {
+  const pathname = usePathname()
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [authState, setAuthState] = React.useState<AuthState>({
     isAuthenticated: false,
@@ -475,9 +485,15 @@ export default function Navbar() {
                     <Link
                       key={link.title}
                       href={link.href}
-                      className="flex items-center gap-2 py-3 px-3 text-[#00214D] hover:text-white hover:bg-[#00214D] transition-colors group rounded-lg font-bold"
+                      className={cn(
+                        "flex items-center gap-2 py-3 px-3 text-[#00214D] hover:text-white hover:bg-[#00214D] transition-colors group rounded-lg font-bold",
+                        pathname === link.href && "bg-[#00214D] text-white"
+                      )}
                     >
-                      <link.icon className="h-5 w-5 text-[#34A853] opacity-70 group-hover:opacity-100" />
+                      <link.icon className={cn(
+                        "h-5 w-5 opacity-70 group-hover:opacity-100",
+                        pathname === link.href ? "text-white" : "text-[#34A853]"
+                      )} />
                       <span>{link.title}</span>
                     </Link>
                   ))}
@@ -615,10 +631,13 @@ export default function Navbar() {
               <Link
                 key={link.title}
                 href={link.href}
-                className="text-base font-bold text-[#00214D] hover:text-white transition-colors relative group px-4 py-3 rounded-full hover:bg-[#00214D]"
+                className={cn(
+                  "text-base font-bold text-[#00214D] hover:text-white transition-colors relative group px-4 py-3 rounded-full hover:bg-[#00214D]",
+                  pathname === link.href && "bg-[#00214D] text-white"
+                )}
               >
                 {link.title}
-                <span className="" />
+                <span className="absolute inset-0 rounded-full" />
               </Link>
             ))}
             {(userRole === "recruiter" || userRole === "jobseeker") && (

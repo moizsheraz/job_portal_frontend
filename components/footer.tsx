@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react"
+import { Facebook, Instagram, Linkedin, Youtube, MessageCircle } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -18,10 +18,21 @@ export default function Footer() {
                 <span className="text-white">H</span>
               </span>
             </Link>
-            <p className="text-gray-400 text-sm">Connecting job seekers, employers, and freelancers in one place.</p>
+            <p className="text-gray-400 text-sm mb-2">Connecting job seekers, employers, and freelancers in one place.</p>
+            <p className="text-gray-400 text-sm mb-4">Product of Brightway Group of Companies Global</p>
             <div className="flex space-x-4 mt-4">
+              <a href="https://wa.me/233551992919" className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
+                <MessageCircle size={20} />
+              </a>
+              <a href="https://www.tiktok.com/@alljobsgh?is_from_webapp=1&sender_device=pc" className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                  <rect x="2" y="9" width="4" height="12"></rect>
+                  <circle cx="4" cy="4" r="2"></circle>
+                </svg>
+              </a>
               <a href="https://x.com/alljobsgh" className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
-               <img src="/twitter.png" alt="X" className="w-6 h-6" />
+                <img src="/twitter.png" alt="X" className="w-5 h-5" />
               </a>
               <a href="https://www.facebook.com/share/1FCuECskjp/?mibextid=wwXIfr" className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
                 <Facebook size={20} />
@@ -41,16 +52,6 @@ export default function Footer() {
               <li>
                 <Link href="/about" className="text-gray-400 hover:text-white transition-colors text-sm">
                   About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Blog
                 </Link>
               </li>
               <li>
