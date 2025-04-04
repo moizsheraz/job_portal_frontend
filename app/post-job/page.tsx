@@ -130,7 +130,7 @@ export default function PostJobPage() {
   useEffect(() => {
     const checkExistingCompany = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/get-user-company', {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/get-user-company`, {
           withCredentials: true
         });
         
@@ -229,7 +229,7 @@ export default function PostJobPage() {
     e.preventDefault();
     setIsLoading(true);
     console.log(user);
-   if(user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
+   if(user?.subscription && user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
     const jobData = {
       ...formData,
       title: formData.jobTitle,

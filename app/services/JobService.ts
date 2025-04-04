@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1`;
 
 export const createPaymentIntent = async (amount: number) => {
   try {
@@ -107,7 +107,7 @@ export interface Job {
 
 export const getJob = async (id: string): Promise<Job> => {
   try {
-    const response = await axios.get(`${API_URL}/jobs/${id}`);
+    const response = await axios.get(`${API_URL}/jobs/${id}`,{withCredentials:true});
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Failed to fetch job details');

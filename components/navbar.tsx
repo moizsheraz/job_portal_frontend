@@ -10,6 +10,7 @@ import {
   Paperclip,
   Newspaper
 } from "lucide-react"
+import { io } from "socket.io-client"
 
 import {
   NavigationMenu, NavigationMenuContent, NavigationMenuItem,
@@ -252,7 +253,15 @@ export default function Navbar() {
     loading: true
   })
   const [userRole, setUserRole] = React.useState<string | null>(null);
-  
+  const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
+    withCredentials: true,
+    transports: ['websocket', 'polling'],
+    autoConnect: true,
+    path: '/socket.io',
+    extraHeaders: {
+      'Access-Control-Allow-Credentials': 'true'
+    }
+  });
   // Fetch authentication status
   React.useEffect(() => {
     const checkAuth = async () => {
@@ -576,7 +585,7 @@ export default function Navbar() {
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList className="gap-1">
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent text-2xl data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
+              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
                 Job Categories
               </NavigationMenuTrigger>
               <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
