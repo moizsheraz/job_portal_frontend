@@ -27,7 +27,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
-                <div className="inline-flex text-red-600 items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
+                <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
                   <Zap size={16} className="mr-1" /> 1,000+ Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -41,7 +41,7 @@ export default function LandingPage() {
                 <div className="flex items-center gap-4">
                   <Link 
                     href="/build-resume"
-                    className="inline-flex gap-2 text-red-600 text-xl  items-center px-6 py-3 bg-yellow-600 font-bold rounded-xl  hover:opacity-80"
+                    className="inline-flex gap-2 text-white text-xl  items-center px-6 py-3 bg-yellow-600 font-semibold rounded-xl  hover:opacity-80"
                   >
                     Build Resume <Newspaper/>
                   </Link>

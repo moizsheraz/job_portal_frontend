@@ -7,8 +7,8 @@ import { Home } from "lucide-react"
 import { 
   Menu, ChevronDown, Bookmark, Briefcase, Calculator, Building2, LogIn, 
   Search, Bell, User, Heart, LogOut, Group, LucideIcon, MessageCircle,
-  Paperclip,
-  Newspaper
+  Paperclip,BookOpen,
+  Newspaper,Contact,
 } from "lucide-react"
 import { io } from "socket.io-client"
 
@@ -133,8 +133,8 @@ const vocationalJobs: JobItem[] = [
 const navLinks: NavLink[] = [
   {title: "Home", href: "/", icon: Home},
   // { title: "Blog", href: "/blog", icon: Bookmark },
-  { title: "Contact Us", href: "/contact", icon: MessageCircle },
-  { title: "About Us", href: "/about", icon: Group },
+  { title: "Contact Us", href: "/contact", icon: Contact },
+  { title: "About Us", href: "/about", icon: BookOpen  },
 ]
 
 // Components
@@ -499,11 +499,12 @@ export default function Navbar() {
                         pathname === link.href && "bg-[#00214D] text-white"
                       )}
                     >
-                      <link.icon className={cn(
-                        "h-5 w-5 opacity-70 group-hover:opacity-100",
-                        pathname === link.href ? "text-white" : "text-[#34A853]"
-                      )} />
-                      <span>{link.title}</span>
+                      <link.icon
+          className={cn(
+            "h-5 w-5 opacity-70 transition-colors",
+            pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+          )}
+        />
                     </Link>
                   ))}
                   {(userRole === "recruiter" || userRole === "jobseeker") && (
@@ -635,58 +636,69 @@ export default function Navbar() {
 
         {/* Right Side Utility Links */}
         <div className="flex items-center gap-3">
-          <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
-            {navLinks.map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className={cn(
-                  "text-base font-bold text-[#00214D] hover:text-white transition-colors relative group px-4 py-3 rounded-full hover:bg-[#00214D]",
-                  pathname === link.href && "bg-[#00214D] text-white"
-                )}
-              >
-                {link.title}
-                <span className="absolute inset-0 rounded-full" />
-              </Link>
-            ))}
-            {(userRole === "recruiter" || userRole === "jobseeker") && (
-            <Link href="/post-job">
-              <Button
-                variant="outline"
-                className="border-2 border-[#00214D] transition-all text-[#00214D] group rounded-full font-bold py-6 px-5"
-              >
-                <Building2 className="mr-2 h-5 w-5 text-[#00214D] transition-transform group-hover:scale-110" />
-                Post Job
-              </Button>
-            </Link>)}
-          </nav>
-          
-          {/* Notification and Chat Icons - Desktop */}
-          {authState.isAuthenticated && (
-            <div className="hidden md:flex items-center gap-3">
-              <Link
-                href="/notifications"
-                className="relative rounded-full p-2 hover:bg-[#00214D] hover:text-white text-[#00214D]"
-                aria-label="Notifications"
-              >
-                <Bell size={28}  />
-                <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full" />
-              </Link>
-              <Link
-                href="/indox"
-                className="relative rounded-full p-2 hover:bg-[#00214D] hover:text-white text-[#00214D]"
-                aria-label="Messages"
-              >
-                <MessageCircle size={28}  />
-              </Link>
-            </div>
+  {/* Navigation Links */}
+  <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
+    {navLinks.map((link) => (
+      <Link
+        key={link.title}
+        href={link.href}
+        className={cn(
+          "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
+          pathname === link.href
+            ? "bg-[#00214D] text-white"
+            : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
+        )}
+      >
+        <link.icon
+          className={cn(
+            "h-6 w-6 opacity-70 transition-colors",
+            pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
           )}
-          
-          {/* User Menu */}
-          <div className="flex items-center gap-2">
-            {renderUserMenu()}
-          </div>
-        </div>
+        />
+        <span className="absolute inset-0 rounded-full" />
+      </Link>
+    ))}
+
+    {(userRole === "recruiter" || userRole === "jobseeker") && (
+      <Link href="/post-job">
+        <Button
+          variant="outline"
+          className="border-2 border-[#00214D] text-[#00214D] rounded-full font-bold px-5 py-2 transition-all group hover:bg-[#00214D] hover:text-white"
+        >
+          <Building2 className="mr-2 h-5 w-5 text-inherit transition-transform group-hover:scale-110" />
+          Post Job
+        </Button>
+      </Link>
+    )}
+  </nav>
+
+  {/* Notification and Chat Icons - Desktop */}
+  {authState.isAuthenticated && (
+    <div className="hidden md:flex items-center gap-3">
+      <Link
+        href="/notifications"
+        aria-label="Notifications"
+        className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+      >
+        <Bell size={28} />
+        <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full" />
+      </Link>
+      <Link
+        href="/indox"
+        aria-label="Messages"
+        className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+      >
+        <MessageCircle size={28} />
+      </Link>
+    </div>
+  )}
+
+  {/* User Menu */}
+  <div className="flex items-center gap-2">
+    {renderUserMenu()}
+  </div>
+</div>
+
       </div>
     </header>
   )
