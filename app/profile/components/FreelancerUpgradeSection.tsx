@@ -88,7 +88,7 @@ const PaymentForm = ({
           className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 
                      transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isProcessing ? 'Processing...' : 'Pay $29.99'}
+          {isProcessing ? 'Processing...' : 'Pay ₵29.99'}
         </button>
       </div>
     </form>
@@ -157,7 +157,7 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div className="mb-4 sm:mb-0">
             <p className="text-lg font-bold text-gray-900">Freelancer Membership</p>
-            <p className="text-[#00214D] font-bold text-2xl">$29.99</p>
+            <p className="text-[#00214D] font-bold text-2xl">₵29.99</p>
             <p className="text-gray-500 text-sm">For 60 Days - One-time payment</p>
           </div>
           <button

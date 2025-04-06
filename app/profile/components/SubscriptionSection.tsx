@@ -218,10 +218,6 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
     }
   };
 
-  // Only show subscription section for recruiters
-  if (user.role !== 'recruiter') {
-    return null;
-  }
 
   // Check if user has an active subscription
   const hasActiveSubscription = user.subscription && new Date(user.subscription.endDate) > new Date();
@@ -457,7 +453,7 @@ const PaymentForm = ({
             className="px-5 py-2.5 bg-gradient-to-r bg-yellow-600 text-white rounded-xl hover:opacity-80 
                       transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isProcessing ? 'Processing...' : `Pay $${formattedPrice}`}
+            {isProcessing ? 'Processing...' : `Pay ₵${formattedPrice}`}
           </button>
         </div>
       </form>

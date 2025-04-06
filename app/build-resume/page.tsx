@@ -25,6 +25,8 @@ import { ExperienceForm } from "../../components/resume/experience-form"
 import { SkillsForm } from "../../components/resume/skill-form"
 import { TemplateSelector } from "../../components/resume/template-sector"
 import { ResumePreview } from "../../components/resume/resume-preview"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_TYooMQauvdEDq54NiTphI7jx")
@@ -142,7 +144,7 @@ function PaymentForm({ clientSecret, onSuccess, onClose }: PaymentFormProps) {
           ) : (
             <span className="flex items-center">
               <CreditCard className="mr-2 h-4 w-4" />
-              Pay $4.99
+              Pay ₵4.99
             </span>
           )}
         </Button>
@@ -404,14 +406,16 @@ export default function ResumeBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
+  <>
+  <Navbar/>
+  <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Premium Resume Builder by ALLJOBS</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Create a professional resume in minutes with our easy-to-use builder.
-          </p>
-        </div>
+      <div className="text-center mb-12">
+  <p className="text-xl font-bold text-yellow-600 text-gray-600 max-w-3xl mx-auto">
+    Create a professional resume in minutes with our easy-to-use builder. Build your future today!
+  </p>
+</div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
@@ -530,7 +534,7 @@ export default function ResumeBuilder() {
                     ) : (
                       <span className="flex items-center">
                         <Download className="mr-2 h-4 w-4" />
-                        {paymentStatus === "success" ? "Download Resume PDF" : "Purchase & Download ($4.99)"}
+                        {paymentStatus === "success" ? "Download Resume PDF" : "Purchase & Download (₵4.99)"}
                       </span>
                     )}
                   </Button>
@@ -570,7 +574,7 @@ export default function ResumeBuilder() {
         <DialogContent className="sm:max-w-md bg-white rounded-lg overflow-y-auto max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Complete Your Purchase</DialogTitle>
-            <DialogDescription>Pay $4.99 to download your premium resume in PDF format.</DialogDescription>
+            <DialogDescription>Pay ₵4.99 to download your premium resume in PDF format.</DialogDescription>
           </DialogHeader>
 
           {clientSecret ? (
@@ -601,6 +605,8 @@ export default function ResumeBuilder() {
         </DialogContent>
       </Dialog>
     </div>
+  <Footer/>
+  </>
   )
 }
 

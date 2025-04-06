@@ -3,15 +3,44 @@ import Link from "next/link"
 import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper } from "lucide-react"
+import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck } from "lucide-react"
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface StatsData {
+  totalJobSeekers: number;
+  totalFreelancers: number;
+  totalJobsPosted: number;
+  totalCompanies: number;
+}
 
 export default function LandingPage() {
   const router = useRouter();
+  const [stats, setStats] = useState<StatsData | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stats-home`);
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const handleSubmit = (e: React.FormEvent)=>{
     e.preventDefault();
     router.push("/search")
   }
+
+  const handleJobClick = () => {
+    router.push("/search");
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -143,6 +172,7 @@ export default function LandingPage() {
                     ].map((job, index) => (
                       <div 
                         key={index} 
+                        onClick={handleJobClick}
                         className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${index === 0 ? 'z-30' : index === 1 ? 'z-20 -mt-2 ml-2' : 'z-10 -mt-2 ml-4'}`}
                       >
                         <div className="flex justify-between items-start">
@@ -192,10 +222,11 @@ export default function LandingPage() {
             {/* Stats Bar */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
               {[
-                { count: "10M+", label: "Job Seekers", icon: Users },
-                { count: "85K+", label: "Companies", icon: Briefcase },
-                { count: "150K", label: "Jobs Posted", icon: TrendingUp },
-                { count: "95%", label: "Success Rate", icon: Zap },
+                { count: stats?.totalJobSeekers || "2", label: "Job Seekers", icon: Users },
+                { count: stats?.totalCompanies || "3", label: "Companies", icon: Briefcase },
+                { count: stats?.totalJobsPosted || "3", label: "Jobs Posted", icon: TrendingUp },
+                { count: stats?.totalFreelancers || "3", label: "Freelancers", icon: UserCheck }
+              
               ].map((stat, index) => (
                 <div key={index} className="bg-white bg-opacity-90 p-4 rounded-xl shadow-md">
                   <stat.icon className="mx-auto h-8 w-8 text-[#00214D] mb-2" />
@@ -278,14 +309,10 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
-                { name: "Technology", icon: "💻", color: "bg-[#00214D] bg-opacity-10 text-[#00214D]", jobs: "5,234" },
-                { name: "Marketing", icon: "📊", color: "bg-purple-100 text-purple-600", jobs: "3,187" },
-                { name: "Design", icon: "🎨", color: "bg-yellow-100 text-yellow-700", jobs: "2,945" },
-                { name: "Finance", icon: "💰", color: "bg-green-100 text-green-700", jobs: "4,126" },
-                { name: "Healthcare", icon: "🏥", color: "bg-red-100 text-red-600", jobs: "3,752" },
+                { name: "White-Collar Jobs", icon: "💻", color: "bg-[#00214D] bg-opacity-10 text-[#00214D]", jobs: "5,234" },
+                { name: "Vocational Jobs", icon: "📊", color: "bg-purple-100 text-purple-600", jobs: "3,187" },
                 { name: "Education", icon: "🎓", color: "bg-indigo-100 text-indigo-600", jobs: "2,318" },
                 { name: "Engineering", icon: "⚙️", color: "bg-gray-100 text-gray-600", jobs: "3,547" },
-                { name: "Customer Service", icon: "🤝", color: "bg-pink-100 text-pink-600", jobs: "2,863" },
               ].map((category, index) => (
                 <Link
                   href="#"
@@ -296,26 +323,13 @@ export default function LandingPage() {
                     <span className="text-2xl">{category.icon}</span>
                   </div>
                   <h3 className="font-bold text-lg text-[#00214D] group-hover:text-[#00214D] group-hover:opacity-80 transition-colors">{category.name}</h3>
-                  <div className="mt-2 inline-flex items-center text-sm text-gray-500">
-                    <span className="font-medium text-[#00214D] mr-1">{category.jobs}</span> open positions
-                  </div>
                   <div className="mt-auto pt-4">
-                    <span className="text-[#00214D] text-sm font-medium group-hover:underline group-hover:opacity-80 inline-flex items-center">
+                    <Link href="/search" className="text-[#00214D] text-sm font-medium group-hover:underline group-hover:opacity-80 inline-flex items-center">
                       Browse Jobs <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
-                    </span>
+                    </Link>
                   </div>
                 </Link>
               ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link
-                href="#"
-                className="inline-flex items-center px-6 py-3 shadow-sm text-base font-medium rounded-lg text-white bg-yellow-600 hover:bg-yellow-900 transition duration-200"
-              >
-                View All Categories
-                <ChevronRight size={18} className="ml-2" />
-              </Link>
             </div>
           </div>
         </section>
@@ -405,7 +419,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/jobs"
+                    href="/search"
                     className="px-8 py-4 bg-yellow-600 text-white font-bold rounded-xl transition duration-200 ease-in-out shadow-lg hover:shadow-xl hover:bg-yellow-900 text-lg"
                   >
                     Browse Jobs

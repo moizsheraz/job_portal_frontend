@@ -132,7 +132,6 @@ const vocationalJobs: JobItem[] = [
 
 const navLinks: NavLink[] = [
   {title: "Home", href: "/", icon: Home},
-  // { title: "Blog", href: "/blog", icon: Bookmark },
   { title: "Contact Us", href: "/contact", icon: Contact },
   { title: "About Us", href: "/about", icon: BookOpen  },
 ]
@@ -235,11 +234,16 @@ function Logo() {
         />
       </div>
       <span className="font-bold text-2xl tracking-tight">
-        <span className="text-purple-600">A</span>
-        <span className="text-green-600">LL</span>
-        <span className="text-yellow-600">JOBS</span>
-        <span className="text-red-500">GH</span>
-      </span>
+  <span className="text-blue-600">A</span>
+  <span className="text-green-600">LL</span>
+  <span className="text-yellow-500">J</span>
+  <span className="text-red-600">O</span>
+  <span className="text-blue-600">B</span>
+  <span className="text-red-600">S</span>
+  <span className="text-black-600">G</span>
+  <span className="text-black-600">H</span>
+</span>
+
     </Link>
   )
 }
@@ -595,7 +599,7 @@ export default function Navbar() {
                     <ListItem 
                       key={category.title} 
                       title={category.title} 
-                      href={category.href}
+                      href={"/search"}
                       icon={category.icon}
                     >
                       {category.description}
@@ -612,7 +616,7 @@ export default function Navbar() {
               <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
                 <ul className="grid gap-3 p-4 text-2xl md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
                   {professionalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={job.href} />
+                    <ListItem key={job.title} title={job.title} href={"/search"} />
                   ))}
                 </ul>
               </NavigationMenuContent>
@@ -625,7 +629,7 @@ export default function Navbar() {
               <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
                 <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
                   {vocationalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={job.href} />
+                    <ListItem key={job.title} title={job.title} href={"/search"} />
                   ))}
                 </ul>
               </NavigationMenuContent>
@@ -675,14 +679,7 @@ export default function Navbar() {
   {/* Notification and Chat Icons - Desktop */}
   {authState.isAuthenticated && (
     <div className="hidden md:flex items-center gap-3">
-      <Link
-        href="/notifications"
-        aria-label="Notifications"
-        className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
-      >
-        <Bell size={28} />
-        <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full" />
-      </Link>
+    
       <Link
         href="/indox"
         aria-label="Messages"
