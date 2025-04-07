@@ -236,12 +236,8 @@ function Logo() {
       <span className="font-bold text-2xl tracking-tight">
   <span className="text-blue-600">A</span>
   <span className="text-green-600">LL</span>
-  <span className="text-yellow-500">J</span>
-  <span className="text-red-600">O</span>
-  <span className="text-blue-600">B</span>
-  <span className="text-red-600">S</span>
-  <span className="text-black-600">G</span>
-  <span className="text-black-600">H</span>
+  <span className="text-yellow-500">JOBS</span>
+  <span className="text-red-600">GH</span>
 </span>
 
     </Link>
