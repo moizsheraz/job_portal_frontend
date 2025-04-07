@@ -583,64 +583,6 @@ export default function Navbar() {
                     </Link>
                   ))}
                 </nav>
-                
-                <div className="mt-auto space-y-3 border-t border-gray-100 pt-4">
-                  {/* Notification and Chat Icons - Mobile */}
-                  {authState.isAuthenticated && (
-                    <div className="flex items-center gap-4 mb-4 justify-center">
-                      <Link
-                        href="/notifications"
-                        className="relative rounded-full p-2 bg-[#00214D] text-white flex items-center gap-2"
-                        aria-label="Notifications"
-                      >
-                        <Bell size={20} />
-                        <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full" />
-                      </Link>
-                      <Link
-                        href="/indox"
-                        className="relative rounded-full p-2 bg-[#00214D] text-white flex items-center gap-2"
-                        aria-label="Messages"
-                      >
-                        <MessageCircle size={20} />
-                      </Link>
-                    </div>
-                  )}
-                
-                  {!authState.isAuthenticated ? (
-                    <>
-                      <Link href="/login">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-center bg-[#00214D] text-white hover:text-white hover:border-[#34A853] transition-colors rounded-full font-bold py-6"
-                        >
-                          <LogIn className="mr-2 h-5 w-5" />
-                          Sign In
-                        </Button>
-                      </Link>
-                      <Link href="/signup">
-                        <Button className="w-full bg-[#34A853] text-white hover:bg-[#2E974A] transition-colors rounded-full font-bold py-6">
-                          Sign Up
-                        </Button>
-                      </Link>
-                    </>
-                  ) : (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-[#00214D] text-white">
-                      <Avatar className="h-12 w-12 border-2 border-[#34A853]">
-                        <AvatarImage src={authState.user?.picture} alt={authState.user?.name || "User"} />
-                        <AvatarFallback className="bg-[#34A853] text-white">{getUserInitials()}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <span className="font-bold">{authState.user?.name}</span>
-                        <Link 
-                          href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`} 
-                          className="text-sm text-[#34A853] font-bold"
-                        >
-                          Sign Out
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </SheetContent>
           </Sheet>
