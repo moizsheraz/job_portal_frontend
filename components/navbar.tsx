@@ -1,5 +1,4 @@
 "use client"
-
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -113,7 +112,7 @@ const vocationalJobs: JobItem[] = [
   { title: "Cleaning", href: "#" },
   { title: "Carpentry", href: "#" },
   { title: "Car Mechanics", href: "#" },
-  { title: "HVAC – Air Conditioning", href: "#" },
+  { title: "HVAC - Air Conditioning", href: "#" },
   { title: "Driving", href: "#" },
   { title: "Roofing", href: "#" },
   { title: "Windows", href: "#" },
@@ -134,6 +133,34 @@ const navLinks: NavLink[] = [
   {title: "Home", href: "/", icon: Home},
   { title: "Contact Us", href: "/contact", icon: Contact },
   { title: "About Us", href: "/about", icon: BookOpen  },
+]
+
+// Main navigation items
+const mainNavItems = [
+  {
+    title: "Employers Post Job",
+    href: "/post-job",
+    requiresAuth: true,
+    icon: Briefcase
+  },
+  {
+    title: "Browse Professional Jobs",
+    href: "/search",
+    requiresAuth: false,
+    icon: Search
+  },
+  {
+    title: "Freelancers Post Job",
+    href: "/post-job",
+    requiresAuth: true,
+    icon: Paperclip
+  },
+  {
+    title: "Find Freelancers",
+    href: "/freelancers",
+    requiresAuth: false,
+    icon: User
+  }
 ]
 
 // Components
@@ -445,6 +472,30 @@ export default function Navbar() {
       : <UserMenuGuest />;
   };
 
+  // Render main navigation items with auth checks
+  const renderMainNavItems = () => {
+    return mainNavItems.map((item) => {
+      // if (item.requiresAuth && !authState.isAuthenticated) {
+      //   return null; // Skip rendering if auth is required but user is not authenticated
+      // }
+      return (
+        <Link
+          key={item.title}
+          href={item.href}
+          className={cn(
+            "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
+            pathname === item.href
+              ? "bg-[#00214D] text-white"
+              : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
+          )}
+        >
+          <item.icon className="h-5 w-5" />
+          <span>{item.title}</span>
+        </Link>
+      );
+    });
+  };
+
   return (
     <header
       className={cn(
@@ -482,13 +533,36 @@ export default function Navbar() {
                 </div>
                 
                 <nav className="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-250px)]">
-                  <MobileAccordion
+                  {/* Render main nav items in mobile menu */}
+                  {mainNavItems.map((item) => {
+                    if (item.requiresAuth && !authState.isAuthenticated) return null;
+                    return (
+                      <Link
+                        key={item.title}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2 py-3 px-3 text-[#00214D] hover:text-white hover:bg-[#00214D] transition-colors group rounded-lg font-bold",
+                          pathname === item.href && "bg-[#00214D] text-white"
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            "h-5 w-5 opacity-70 transition-colors",
+                            pathname === item.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+                          )}
+                        />
+                        <span>{item.title}</span>
+                      </Link>
+                    );
+                  })}
+
+                  {/* <MobileAccordion
                     title="Job Categories"
                     items={categories.map((c) => ({ title: c.title, href: c.href }))}
                     icon={Briefcase}
                   />
                   <MobileAccordion title="Professional Jobs" items={professionalJobs} icon={Building2} />
-                  <MobileAccordion title="Vocational Jobs" items={vocationalJobs} icon={User} />
+                  <MobileAccordion title="Vocational Jobs" items={vocationalJobs} icon={User} /> */}
 
                   {navLinks.map((link) => (
                     <Link
@@ -500,22 +574,14 @@ export default function Navbar() {
                       )}
                     >
                       <link.icon
-          className={cn(
-            "h-5 w-5 opacity-70 transition-colors",
-            pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
-          )}
-        />
+                        className={cn(
+                          "h-5 w-5 opacity-70 transition-colors",
+                          pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+                        )}
+                      />
+                      <span>{link.title}</span>
                     </Link>
                   ))}
-                  {(userRole === "recruiter" || userRole === "jobseeker") && (
-                    <Link 
-                      href="/post-job" 
-                      className="flex items-center gap-2 py-3 px-3 text-white bg-[#00214D] hover:bg-[#001b3f] transition-colors group rounded-lg font-bold"
-                    >
-                      <Building2 className="h-5 w-5 opacity-70 group-hover:opacity-100 text-[#34A853]" />
-                      <span>Post Job</span>
-                    </Link>
-                  )}
                 </nav>
                 
                 <div className="mt-auto space-y-3 border-t border-gray-100 pt-4">
@@ -583,7 +649,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex">
+        {/* <NavigationMenu className="hidden md:flex">
           <NavigationMenuList className="gap-1">
             <NavigationMenuItem>
               <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
@@ -632,66 +698,65 @@ export default function Navbar() {
             </NavigationMenuItem>
           </NavigationMenuList>
           <NavigationMenuViewport className="origin-top-center rounded-xl overflow-hidden shadow-lg" />
-        </NavigationMenu>
+        </NavigationMenu> */}
 
         {/* Right Side Utility Links */}
         <div className="flex items-center gap-3">
-  {/* Navigation Links */}
-  <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
-    {navLinks.map((link) => (
-      <Link
-        key={link.title}
-        href={link.href}
-        className={cn(
-          "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
-          pathname === link.href
-            ? "bg-[#00214D] text-white"
-            : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
-        )}
-      >
-        <link.icon
-          className={cn(
-            "h-6 w-6 opacity-70 transition-colors",
-            pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+          {/* Main Navigation Links */}
+          <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
+            {renderMainNavItems()}
+          </nav>
+
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
+            {navLinks.map((link) => (
+              <Link
+                key={link.title}
+                href={link.href}
+                className={cn(
+                  "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
+                  pathname === link.href
+                    ? "bg-[#00214D] text-white"
+                    : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
+                )}
+              >
+                <link.icon
+                  className={cn(
+                    "h-6 w-6 opacity-70 transition-colors",
+                    pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+                  )}
+                />
+                <span className="absolute inset-0 rounded-full" />
+              </Link>
+            ))}
+          </nav>
+
+          {/* Notification and Chat Icons - Desktop */}
+          {authState.isAuthenticated && (
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                href="/notifications"
+                aria-label="Notifications"
+                className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+              >
+                <Bell size={28} />
+                <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full" />
+              </Link>
+              <Link
+                href="/indox"
+                aria-label="Messages"
+                className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+              >
+                <MessageCircle size={28} />
+              </Link>
+            </div>
           )}
-        />
-        <span className="absolute inset-0 rounded-full" />
-      </Link>
-    ))}
 
-    {(userRole === "recruiter" || userRole === "jobseeker") && (
-      <Link href="/post-job">
-        <Button
-          variant="outline"
-          className="border-2 border-[#00214D] text-[#00214D] rounded-full font-bold px-5 py-2 transition-all group hover:bg-[#00214D] hover:text-white"
-        >
-          <Building2 className="mr-2 h-5 w-5 text-inherit transition-transform group-hover:scale-110" />
-          Post Job
-        </Button>
-      </Link>
-    )}
-  </nav>
-
-  {/* Notification and Chat Icons - Desktop */}
-  {authState.isAuthenticated && (
-    <div className="hidden md:flex items-center gap-3">
-    
-      <Link
-        href="/indox"
-        aria-label="Messages"
-        className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
-      >
-        <MessageCircle size={28} />
-      </Link>
-    </div>
-  )}
-
-  {/* User Menu */}
-  <div className="flex items-center gap-2">
-    {renderUserMenu()}
-  </div>
-</div>
-
+          {/* User Menu */}
+          <div className="flex items-center gap-2">
+            {renderUserMenu()}
+          </div>
+        </div>
       </div>
     </header>
   )

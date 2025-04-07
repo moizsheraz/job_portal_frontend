@@ -47,7 +47,7 @@ export default function AboutPage() {
         {/* Our Story */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-20">
           <h2 className="text-3xl font-bold text-[#00214D] mb-6 text-center">Our Story</h2>
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="flex items-center">
             <div>
               <p className="text-gray-700 mb-4">
                 ALL JOBS, a product of Brightway Group of Companies Global, was founded with a vision to revolutionize 
@@ -64,9 +64,6 @@ export default function AboutPage() {
               <Button className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-6 text-lg rounded-full">
                 Learn More About Brightway
               </Button>
-            </div>
-            <div className="bg-gray-200 rounded-xl h-80 flex items-center justify-center">
-              <p className="text-gray-500 font-medium">Brightway Group image would be here</p>
             </div>
           </div>
         </div>
