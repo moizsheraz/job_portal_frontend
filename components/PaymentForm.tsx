@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { toast } from 'react-hot-toast';
+import { toast,Toaster } from 'react-hot-toast';
 import { X } from 'lucide-react';
+import axios from 'axios';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 interface PaymentFormProps {
   amount: number;
-  jobData: any; // Replace with proper JobData type
+  jobData: any; 
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -17,8 +18,9 @@ const PaymentFormContent = ({ amount, jobData, onSuccess, onCancel }: PaymentFor
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleStripeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!stripe || !elements) {
@@ -52,8 +54,52 @@ const PaymentFormContent = ({ amount, jobData, onSuccess, onCancel }: PaymentFor
     }
   };
 
+  const handleMntSubmit = async () => {
+    if (!phoneNumber || phoneNumber.length !== 10) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/momo/create-payment', {
+        amount,
+        phoneNumber,
+      });
+
+      if (response.data.success) {
+        toast.success('MNT Payment successful!');
+      } else {
+        toast.error('MNT Payment failed!');
+      }
+    } catch (error) {
+      toast.error('Payment failed. Please try again.');
+    }
+  };
+
   return (
     <div className="relative">
+        <Toaster 
+        position="top-center" 
+        toastOptions={{
+          style: {
+            background: 'white',
+            color: 'black',
+            borderRadius: '10px',
+          },
+          success: {
+            style: {
+              background: 'white',
+              color: 'black',
+            },
+          },
+          error: {
+            style: {
+              background: 'white',
+              color: 'black',
+            },
+          },
+        }}
+      />
       <button
         onClick={onCancel}
         className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -66,7 +112,7 @@ const PaymentFormContent = ({ amount, jobData, onSuccess, onCancel }: PaymentFor
         <p className="text-gray-600 mt-2">Please provide your payment details to continue</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleStripeSubmit} className="space-y-6">
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <PaymentElement />
         </div>
@@ -91,10 +137,27 @@ const PaymentFormContent = ({ amount, jobData, onSuccess, onCancel }: PaymentFor
             disabled={!stripe || isLoading}
             className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:opacity-80 disabled:opacity-50 transition-colors"
           >
-            {isLoading ? 'Processing...' : 'Pay Now'}
+            {isLoading ? 'Processing...' : 'Pay Now with Stripe'}
           </button>
         </div>
       </form>
+
+      {/* MNT Payment Section */}
+      <div className="mt-6">
+        <input
+          type="text"
+          placeholder="Enter phone number (10 digits)"
+          className="px-4 py-2 border rounded-lg"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+        />
+        <button
+          onClick={handleMntSubmit}
+          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-80 transition-colors"
+        >
+          Pay with MNT
+        </button>
+      </div>
     </div>
   );
 };
