@@ -53,6 +53,7 @@ export default function UserProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  console.log(user?.profilePicture);
 
   useEffect(() => {
     fetchUserProfile();
@@ -173,7 +174,7 @@ export default function UserProfilePage() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-shrink-0">
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.profilePicture}`}
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${user.profilePicture}`}
                   alt={user.name}
                   className="w-32 h-32 rounded-full object-cover border-4 border-yellow-600/20"
                 />

@@ -410,12 +410,6 @@ const ChatComponent = () => {
                 className="p-4  bg-[#00214D]  border-t border-gray-100"
               >
                 <div className="flex items-center bg-gray-300 space-x-3   rounded-full p-2">
-                  <button type="button" className="text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition-colors">
-                    <Paperclip size={20} />
-                  </button>
-                  <button type="button" className="text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition-colors">
-                    <Image size={20} />
-                  </button>
                   <Input
                     ref={inputRef}
                     value={newMessage}
@@ -516,9 +510,7 @@ const ChatComponent = () => {
               className="p-4 border-t border-gray-200 bg-white"
             >
               <div className="flex items-center space-x-2">
-                <button type="button" className="text-gray-500 hover:text-blue-500">
-                  <Paperclip size={20} />
-                </button>
+                
                 <Input
                   value={newMessage}
                   onChange={(e) => {

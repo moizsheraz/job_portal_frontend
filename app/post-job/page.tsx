@@ -27,7 +27,7 @@ interface CompanyData {
   name: string
   industry: string
   location: string
-  logo: string
+  logo?: string
   website: string
   description: string
 }
@@ -458,7 +458,6 @@ export default function PostJobPage() {
                           onChange={handleCompanyInputChange}
                           className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-yellow-900 focus:border-transparent transition-all shadow-sm"
                           placeholder="https://example.com/logo.png"
-                          required
                         />
                       </div>
 

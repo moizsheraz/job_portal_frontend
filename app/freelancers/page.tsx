@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Image from "next/image"
@@ -10,16 +11,18 @@ interface Freelancer {
   name: string
   email: string
   profilePicture: string
+  profession: string
 }
 
 export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<Freelancer[]>([])
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchFreelancers = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/get-all-freelancers`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/get-all-freelancers`)
         const data = await res.json()
         setFreelancers(data)
       } catch (err) {
@@ -31,6 +34,10 @@ export default function FreelancersPage() {
 
     fetchFreelancers()
   }, [])
+
+  const handleCardClick = (id: string) => {
+    router.push(`/users/${id}`)
+  }
 
   return (
     <>
@@ -46,11 +53,12 @@ export default function FreelancersPage() {
               {freelancers.map((freelancer) => (
                 <div
                   key={freelancer._id}
-                  className="bg-white text-[#00214D] rounded-2xl shadow-xl p-6 flex flex-col items-center text-center"
+                  onClick={() => handleCardClick(freelancer._id)}
+                  className="cursor-pointer bg-white text-[#00214D] rounded-2xl shadow-xl p-6 flex flex-col items-center text-center hover:shadow-2xl transition duration-300"
                 >
                   <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 border-4 border-yellow-400">
                     <Image
-                      src={`http://localhost:5000/${freelancer.profilePicture}`}
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${freelancer.profilePicture}`}
                       alt={freelancer.name}
                       fill
                       className="object-cover"
@@ -58,6 +66,7 @@ export default function FreelancersPage() {
                   </div>
                   <h2 className="text-xl font-bold mb-1">{freelancer.name}</h2>
                   <p className="text-gray-600">{freelancer.email}</p>
+                  <p className="border-2 rounded-xl p-1 font-bold border-[#00214D]">{freelancer.profession}</p>
                 </div>
               ))}
             </div>

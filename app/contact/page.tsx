@@ -94,7 +94,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#00214D]">Our Location</h3>
-                    <p className="text-gray-600">123 Job Street, Career City, CC 12345</p>
+                    <p className="text-gray-600">Ganna</p>
                   </div>
                 </div>
 
@@ -104,8 +104,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#00214D]">Email Us</h3>
-                    <p className="text-gray-600">support@alljobs.com</p>
-                    <p className="text-gray-600">info@alljobs.com</p>
+                    <p className="text-gray-600"> brightwaygh@alljobsgh.com</p>
                   </div>
                 </div>
 
@@ -115,7 +114,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#00214D]">Call Us</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+233 55 199 2919</p>
                     <p className="text-gray-600">Mon-Fri: 9am - 5pm</p>
                   </div>
                 </div>

@@ -231,16 +231,33 @@ export default function JobsPage() {
 
     {/* Region Input */}
     <div className="relative">
-      <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-      <input
-        type="text"
-        name="region"
-        value={filters.region}
-        onChange={handleFilterChange}
-        placeholder="Region"
-        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-yellow-800 focus:border-yellow-800"
-      />
-    </div>
+  <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+  <select
+    name="region"
+    value={filters.region}
+    onChange={handleFilterChange}
+    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-yellow-800 focus:border-yellow-800 appearance-none"
+  >
+    <option value="" disabled>Select a Region</option>
+    <option value="Ashanti">Ashanti</option>
+    <option value="Greater Accra">Greater Accra</option>
+    <option value="Northern">Northern</option>
+    <option value="Volta">Volta</option>
+    <option value="Central">Central</option>
+    <option value="Western">Western</option>
+    <option value="Upper-West">Upper-West</option>
+    <option value="Upper-East">Upper-East</option>
+    <option value="Oti">Oti</option>
+    <option value="Savannah">Savannah</option>
+    <option value="Bono East">Bono East</option>
+    <option value="Western North">Western North</option>
+    <option value="Brong Ahafo">Brong Ahafo</option>
+    <option value="North East">North East</option>
+    <option value="Ahafo">Ahafo</option>
+    <option value="Eastern">Eastern</option>
+  </select>
+</div>
+
 
     {/* Buttons */}
     <div className="flex space-x-2">
@@ -492,7 +509,7 @@ export default function JobsPage() {
                           <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden relative">
                             {job.company?.logo ? (
                               <Image
-                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${job.company.logo}`}
+                                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${job.company.logo}`}
                                 alt={job.company.name}
                                 width={64}
                                 height={64}

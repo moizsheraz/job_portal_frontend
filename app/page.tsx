@@ -6,6 +6,7 @@ import Footer from "@/components/footer"
 import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { DollarSign } from "lucide-react"
 
 interface StatsData {
   totalJobSeekers: number;
@@ -21,7 +22,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stats-home`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stats-home`);
         const data = await response.json();
         setStats(data);
       } catch (error) {
@@ -78,64 +79,40 @@ export default function LandingPage() {
 
                 {/* Enhanced Search Bar with improved icon contrast */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-5xl mx-auto">
-                  <div className="flex flex-col gap-4">
-                    {/* Search form */}
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                      {/* Skills input */}
-                      <div className="relative md:col-span-5">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-                          <Search size={18} />
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Job title, skills, or company"
-                          className="w-full pl-10 pr-4 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all bg-white"
-                        />
-                      </div>
-                      
-                      {/* Region selector */}
-                      <div className="relative md:col-span-5">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-                          <MapPin size={18} />
-                        </div>
-                        <select
-                          className="w-full appearance-none bg-white pl-10 pr-10 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all cursor-pointer"
-                        >
-                          <option value="">All Regions</option>
-                          <option value="Ashanti">Ashanti</option>
-                          <option value="Greater Accra">Greater Accra</option>
-                          <option value="Northern">Northern</option>
-                          <option value="Volta">Volta</option>
-                          <option value="Central">Central</option>
-                          <option value="Western">Western</option>
-                          <option value="Upper-West">Upper-West</option>
-                          <option value="Upper-East">Upper-East</option>
-                          <option value="Oti">Oti</option>
-                          <option value="Savannah">Savannah</option>
-                          <option value="Bono East">Bono East</option>
-                          <option value="Western North">Western North</option>
-                          <option value="Brong Ahafo">Brong Ahafo</option>
-                          <option value="North East">North East</option>
-                          <option value="Ahafo">Ahafo</option>
-                          <option value="Eastern">Eastern</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-yellow-800">
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                      
-                      {/* Search button */}
-                      <button 
-                        type="submit"
-                        className="md:col-span-2 py-3 px-4 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center"
-                      >
-                        <Search size={18} className="mr-1" />
-                      </button>
-                    </form>
-                  </div>
-                </div>
+  <div className="flex flex-col gap-4">
+    <div className="text-center">
+      <h3 className="text-xl font-semibold text-gray-800 mb-2">Find Your Perfect Job</h3>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-2">
+        {/* Job title icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <Briefcase size={18} className="text-yellow-800" />
+          <span>Filter by job title</span>
+        </div>
+        
+        {/* Location icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <MapPin size={18} className="text-yellow-800" />
+          <span>Choose your region</span>
+        </div>
+        
+        {/* Salary icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <span className="font-bold text-xl text-yellow-800">₵</span>
+          <span>Set salary range</span>
+        </div>
+      </div>
+      
+      {/* CTA Button */}
+      <a 
+        href="/search"
+        className="inline-block mt-4 rounded-xl py-3 px-8 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center mx-auto"
+      >
+        <Search size={18} className="mr-2" />
+        <span>Explore All Jobs</span>
+      </a>
+    </div>
+  </div>
+</div>
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
@@ -166,9 +143,9 @@ export default function LandingPage() {
                   {/* Featured Job Cards */}
                   <div className="space-y-4 mt-6">
                     {[
-                      { role: "Senior Developer", company: "TechCorp", salary: "$120K-$150K", location: "Remote", new: true },
-                      { role: "Marketing Manager", company: "GrowthCo", salary: "$90K-$110K", location: "New York, NY", new: false },
-                      { role: "UX Designer", company: "CreativeLabs", salary: "$85K-$105K", location: "San Francisco, CA", new: true }
+                      { role: "Senior Developer", company: "TechCorp", salary: "₵120K-₵150K", location: "Remote", new: true },
+                      { role: "Marketing Manager", company: "GrowthCo", salary: "₵90K-₵110K", location: "New York, NY", new: false },
+                      { role: "UX Designer", company: "CreativeLabs", salary: "₵85K-₵105K", location: "San Francisco, CA", new: true }
                     ].map((job, index) => (
                       <div 
                         key={index} 
@@ -284,7 +261,7 @@ export default function LandingPage() {
                   </div>
                   <div className="mt-6 inline-flex items-center text-sm font-medium text-blue-700">
                     <span className="px-2 py-1 bg-blue-100 rounded-full text-xs mr-2">{feature.highlight}</span>
-                    <Link href="#" className="flex items-center hover:underline hover:opacity-80">
+                    <Link href="/about" className="flex items-center hover:underline hover:opacity-80">
                       Learn more <ChevronRight size={16} className="ml-1" />
                     </Link>
                   </div>

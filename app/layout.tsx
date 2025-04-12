@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
-
+import Head from "next/head"
 export const metadata: Metadata = {
   title: "ALL JOBS - Find Your Dream Job Today",
   description: "Connecting job seekers, employers, and freelancers in one place.",
@@ -15,8 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
-    </html>
+    <Head>
+      <link rel="icon" href="/favicon.ico" sizes="any" />
+    </Head>
+    <body>{children}</body>
+  </html>
   )
 }
 

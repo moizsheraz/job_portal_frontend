@@ -44,7 +44,7 @@ export default function LoginPage() {
         
         // If user is authenticated, redirect to dashboard
         if (data.isAuthenticated) {
-          router.push('/dashboard');
+          router.push('/');
         }
       }
     } catch (error) {
@@ -58,8 +58,8 @@ export default function LoginPage() {
     
     // Redirect to Auth0 login page (with optional provider parameter)
     const redirectUrl = provider 
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/login?connection=${provider}`
-      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`;
+      ? `/api/login?connection=${provider}`
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login`;
       
     window.location.href = redirectUrl;
   }
@@ -131,7 +131,7 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </div> 
       </main>
 
       <Footer />

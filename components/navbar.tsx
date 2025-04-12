@@ -141,7 +141,8 @@ const mainNavItems = [
     title: "Employers Post Job",
     href: "/post-job",
     requiresAuth: true,
-    icon: Briefcase
+    icon: Briefcase,
+    requiresRecruiter: true,
   },
   {
     title: "Browse Professional Jobs",
@@ -153,14 +154,18 @@ const mainNavItems = [
     title: "Freelancers Post Job",
     href: "/post-job",
     requiresAuth: true,
-    icon: Paperclip
+    icon: Paperclip,
+    requiresRecruiter: true,
+    
   },
   {
     title: "Find Freelancers",
     href: "/freelancers",
     requiresAuth: false,
-    icon: User
-  }
+    icon: User,
+    requiresRecruiter: false,
+  },
+
 ]
 
 // Components
@@ -357,6 +362,14 @@ export default function Navbar() {
     
     return `${given.charAt(0)}${family.charAt(0)}`;
   };
+  const handleLogout = async () => {
+    try {
+      window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`;
+    } catch (error) {
+      console.error('Logout failed:', error);
+      window.location.href = '/';
+    }
+  };
 
   // User menu components
   const UserMenuAuthenticated = () => (
@@ -417,13 +430,15 @@ export default function Navbar() {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
-          <Link href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`} className="flex items-center gap-2 cursor-pointer">
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </Link>
-        </DropdownMenuItem>
-     
+        <DropdownMenuItem className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
+  <button
+    onClick={handleLogout}
+    className="flex items-center gap-2 w-full cursor-pointer p-2 text-left"
+  >
+    <LogOut className="h-4 w-4" />
+    <span>Sign Out</span>
+  </button>
+</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -475,9 +490,8 @@ export default function Navbar() {
   // Render main navigation items with auth checks
   const renderMainNavItems = () => {
     return mainNavItems.map((item) => {
-      // if (item.requiresAuth && !authState.isAuthenticated) {
-      //   return null; // Skip rendering if auth is required but user is not authenticated
-      // }
+      if (item.requiresAuth && !authState.isAuthenticated) return null;
+      if (item.requiresRecruiter && (!authState.isAuthenticated || userRole !== "recruiter")) return null;
       return (
         <Link
           key={item.title}
@@ -675,8 +689,20 @@ export default function Navbar() {
 
           {/* User Menu */}
           <div className="flex items-center gap-2">
-            {renderUserMenu()}
-          </div>
+  {authState.isAuthenticated && (
+    <Link
+      href="/indox"
+      className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+      aria-label="Chat"
+    >
+      <MessageCircle className="h-6 w-6" />
+      {/* You can add a notification badge here if needed */}
+      {/* <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500"></span> */}
+    </Link>
+  )}
+  {renderUserMenu()}
+</div>
+
         </div>
       </div>
     </header>
