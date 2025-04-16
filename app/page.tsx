@@ -434,17 +434,6 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Sticky WhatsApp Icon */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Link
-          href="https://wa.me/1234567890"
-          target="_blank"
-          className="bg-white p-2 rounded-full shadow-lg  transition-colors duration-200 flex items-center justify-center"
-        >
-         <img src="./icons8-whatsapp.gif" alt="WhatsApp" width={40} height={40} className="text-white" />
-        </Link>
-      </div>
-
       <Footer />
     </div>
   )

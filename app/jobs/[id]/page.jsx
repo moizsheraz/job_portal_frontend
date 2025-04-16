@@ -163,9 +163,9 @@ export default function JobDetails({ params }) {
       <>
         <Navbar />
         <div className="min-h-screen flex flex-col items-center justify-center">
-          <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Job</h2>
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Login to view Job Description</h2>
           <p className="text-gray-300 mb-4">{error || 'Failed to load job details'}</p>
-          <Link href="/jobs" className="text-yellow-500 hover:text-yellow-400">
+          <Link href="/search" className="text-yellow-500 hover:text-yellow-400">
             Return to Jobs
           </Link>
         </div>

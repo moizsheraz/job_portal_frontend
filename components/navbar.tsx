@@ -9,6 +9,7 @@ import {
   Paperclip,BookOpen,
   Newspaper,Contact,
 } from "lucide-react"
+import ChatNotifications from "./Notification"
 import { io } from "socket.io-client"
 import { useState } from "react"
 import { RecruiterModal } from "./RecruiterModal"
@@ -494,9 +495,7 @@ export default function Navbar() {
     return (
       <>
         {mainNavItems.map((item) => {
-          const isBlocked =
-            item.requiresRecruiter &&
-            (!authState.isAuthenticated || userRole !== "recruiter");
+          const isBlocked = item.requiresAuth && !authState.isAuthenticated;
   
           return (
             <div key={item.title} className="relative">
@@ -534,7 +533,6 @@ export default function Navbar() {
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           isAuthenticated={authState.isAuthenticated}
-          userRole={userRole}
         />
       </>
     );
@@ -635,59 +633,6 @@ export default function Navbar() {
           <Logo />
         </div>
 
-        {/* Desktop Navigation */}
-        {/* <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="gap-1">
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Job Categories
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid w-[400px] text-2xl gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white">
-                  {categories.map((category) => (
-                    <ListItem 
-                      key={category.title} 
-                      title={category.title} 
-                      href={"/search"}
-                      icon={category.icon}
-                    >
-                      {category.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Professional Jobs
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid gap-3 p-4 text-2xl md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
-                  {professionalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={"/search"} />
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Vocational Jobs
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
-                  {vocationalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={"/search"} />
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-          <NavigationMenuViewport className="origin-top-center rounded-xl overflow-hidden shadow-lg" />
-        </NavigationMenu> */}
-
-        {/* Right Side Utility Links */}
         <div className="flex items-center gap-3">
           {/* Main Navigation Links */}
           <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
@@ -721,15 +666,19 @@ export default function Navbar() {
           {/* User Menu */}
           <div className="flex items-center gap-2">
   {authState.isAuthenticated && (
-    <Link
-      href="/indox"
-      className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
-      aria-label="Chat"
-    >
-      <MessageCircle className="h-6 w-6" />
-      {/* You can add a notification badge here if needed */}
-      {/* <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500"></span> */}
-    </Link>
+    <>
+      <ChatNotifications 
+        socket={socket} 
+        currentUser={authState.user} 
+      />
+      <Link
+        href="/indox"
+        className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+        aria-label="Chat"
+      >
+        <MessageCircle className="h-6 w-6" />
+      </Link>
+    </>
   )}
   {renderUserMenu()}
 </div>
