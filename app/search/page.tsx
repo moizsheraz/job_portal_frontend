@@ -40,7 +40,7 @@ interface PaginationState {
   totalPages: number;
   totalJobs: number;
   count: number;
-}
+} 
 
 interface FilterState {
   search: string;

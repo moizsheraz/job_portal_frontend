@@ -271,45 +271,68 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Categories Section */}
-        <section className="py-16 md:py-24 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
-                Endless Opportunities
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Explore Jobs by Category</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Discover your perfect role across industries and specializations.
-              </p>
-            </div>
+     {/* Featured Job Types Section */}
+<section className="py-16 md:py-24 bg-gray-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-16">
+      <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
+        Career Paths
+      </div>
+      <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Featured Job Types</h2>
+      <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        Explore different career opportunities tailored to your skills and preferences.
+      </p>
+    </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[
-                { name: "White-Collar Jobs", icon: "💻", color: "bg-[#00214D] bg-opacity-10 text-[#00214D]", jobs: "5,234" },
-                { name: "Vocational Jobs", icon: "📊", color: "bg-purple-100 text-purple-600", jobs: "3,187" },
-                { name: "Education", icon: "🎓", color: "bg-indigo-100 text-indigo-600", jobs: "2,318" },
-                { name: "Engineering", icon: "⚙️", color: "bg-gray-100 text-gray-600", jobs: "3,547" },
-              ].map((category, index) => (
-                <Link
-                  href="#"
-                  key={index}
-                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all group border border-gray-100 hover:border-[#00214D] hover:opacity-80 flex flex-col h-full"
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${category.color} group-hover:scale-110 transition-transform`}>
-                    <span className="text-2xl">{category.icon}</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-[#00214D] group-hover:text-[#00214D] group-hover:opacity-80 transition-colors">{category.name}</h3>
-                  <div className="mt-auto pt-4">
-                    <Link href="/search" className="text-[#00214D] text-sm font-medium group-hover:underline group-hover:opacity-80 inline-flex items-center">
-                      Browse Jobs <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
-                    </Link>
-                  </div>
-                </Link>
-              ))}
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[
+        { 
+          name: "Remote Work", 
+          description: "Work from anywhere with flexible schedules",
+          icon: "🌍",
+          color: "bg-blue-100 text-blue-600"
+        },
+        { 
+          name: "Freelance Gigs", 
+          description: "Short-term projects for independent professionals",
+          icon: "🛠️",
+          color: "bg-purple-100 text-purple-600"
+        },
+        { 
+          name: "Full-Time Roles", 
+          description: "Stable positions with comprehensive benefits",
+          icon: "💼",
+          color: "bg-green-100 text-green-600"
+        },
+        { 
+          name: "Internships", 
+          description: "Gain experience and build your network",
+          icon: "🎓",
+          color: "bg-orange-100 text-orange-600"
+        }
+      ].map((type, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all group border border-gray-100 hover:border-[#00214D] hover:opacity-80 flex flex-col h-full"
+        >
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${type.color} group-hover:scale-110 transition-transform`}>
+            <span className="text-2xl">{type.icon}</span>
           </div>
-        </section>
+          <h3 className="font-bold text-lg text-[#00214D] mb-2">{type.name}</h3>
+          <p className="text-gray-600 mb-4">{type.description}</p>
+          <div className="mt-auto pt-4">
+            <button 
+              onClick={() => router.push("/about")}
+              className="text-[#00214D] text-sm font-medium hover:underline hover:opacity-80 inline-flex items-center"
+            >
+              Learn more <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-white">

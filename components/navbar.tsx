@@ -10,6 +10,8 @@ import {
   Newspaper,Contact,
 } from "lucide-react"
 import { io } from "socket.io-client"
+import { useState } from "react"
+import { RecruiterModal } from "./RecruiterModal"
 
 import {
   NavigationMenu, NavigationMenuContent, NavigationMenuItem,
@@ -363,15 +365,14 @@ export default function Navbar() {
     return `${given.charAt(0)}${family.charAt(0)}`;
   };
   const handleLogout = async () => {
-    try {
-      window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`;
-    } catch (error) {
-      console.error('Logout failed:', error);
-      window.location.href = '/';
-    }
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/custom-logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+  
+    window.location.href = "https://alljobsgh.com";
   };
 
-  // User menu components
   const UserMenuAuthenticated = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -431,13 +432,13 @@ export default function Navbar() {
         </DropdownMenuItem>
 
         <DropdownMenuItem className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
-  <button
-    onClick={handleLogout}
+  <Link
+    href={`/logout`}
     className="flex items-center gap-2 w-full cursor-pointer p-2 text-left"
   >
     <LogOut className="h-4 w-4" />
     <span>Sign Out</span>
-  </button>
+  </Link>
 </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -487,28 +488,59 @@ export default function Navbar() {
       : <UserMenuGuest />;
   };
 
-  // Render main navigation items with auth checks
   const renderMainNavItems = () => {
-    return mainNavItems.map((item) => {
-      if (item.requiresAuth && !authState.isAuthenticated) return null;
-      if (item.requiresRecruiter && (!authState.isAuthenticated || userRole !== "recruiter")) return null;
-      return (
-        <Link
-          key={item.title}
-          href={item.href}
-          className={cn(
-            "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
-            pathname === item.href
-              ? "bg-[#00214D] text-white"
-              : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
-          )}
-        >
-          <item.icon className="h-5 w-5" />
-          <span>{item.title}</span>
-        </Link>
-      );
-    });
+    const [showModal, setShowModal] = useState(false);
+  
+    return (
+      <>
+        {mainNavItems.map((item) => {
+          const isBlocked =
+            item.requiresRecruiter &&
+            (!authState.isAuthenticated || userRole !== "recruiter");
+  
+          return (
+            <div key={item.title} className="relative">
+              {isBlocked ? (
+                <button
+                  className={cn(
+                    "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
+                    pathname === item.href
+                      ? "bg-[#00214D] text-white"
+                      : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
+                  )}
+                  onClick={() => setShowModal(true)}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
+                    pathname === item.href
+                      ? "bg-[#00214D] text-white"
+                      : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </Link>
+              )}
+            </div>
+          );
+        })}
+        <RecruiterModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          isAuthenticated={authState.isAuthenticated}
+          userRole={userRole}
+        />
+      </>
+    );
   };
+  
+  
 
   return (
     <header
@@ -549,7 +581,6 @@ export default function Navbar() {
                 <nav className="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-250px)]">
                   {/* Render main nav items in mobile menu */}
                   {mainNavItems.map((item) => {
-                    if (item.requiresAuth && !authState.isAuthenticated) return null;
                     return (
                       <Link
                         key={item.title}
