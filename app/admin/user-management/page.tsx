@@ -241,21 +241,21 @@ export default function UserManagement() {
                     <td className="px-6 flex gap-1 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
                       <Link
                         href={`/users/${user._id}`}
-                        className="text-[#00214D] hover:text-yellow-600 p-1 rounded-full hover:bg-yellow-50"
+                        className="  p-1 rounded-full "
                         title="View User"
                       >
                         <Eye className="h-5 w-5" />
                       </Link>
                       <button
                         onClick={() => handleEditClick(user._id)}
-                        className="text-[#00214D] hover:text-yellow-600 p-1 rounded-full hover:bg-yellow-50"
+                        className="  p-1 rounded-full "
                         title="Edit User"
                       >
                         <Pencil className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(user)}
-                        className="text-[#00214D] hover:text-red-600 p-1 rounded-full hover:bg-red-50"
+                        className=" hover:text-red-600 p-1 rounded-full hover:bg-red-50"
                         title="Delete User"
                       >
                         <Trash className="h-5 w-5" />
@@ -280,7 +280,7 @@ export default function UserManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-[#00214D]">Create New User</h3>
+              <h3 className="text-lg font-medium ">Create New User</h3>
               <button 
                 onClick={() => setShowCreateModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -297,7 +297,7 @@ export default function UserManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-[#00214D]">Edit User</h3>
+              <h3 className="text-lg font-medium ">Edit User</h3>
               <button 
                 onClick={() => setShowEditModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -316,7 +316,7 @@ export default function UserManagement() {
                     required
                     value={currentUser.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
                   />
                 </div>
                 <div>
@@ -328,7 +328,7 @@ export default function UserManagement() {
                     required
                     value={currentUser.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
                   />
                 </div>
                 <div>
@@ -370,7 +370,7 @@ export default function UserManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-[#00214D]">User Details</h3>
+              <h3 className="text-lg font-medium ">User Details</h3>
               <button 
                 onClick={() => setShowViewModal(false)}
                 className="text-gray-400 hover:text-gray-600"

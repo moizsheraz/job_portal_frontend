@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import Layout from '../../../components/AdminLayout';
-import { Eye, Pencil, Trash, X } from 'lucide-react';
+import { Eye, Pencil, Trash, X, Plus } from 'lucide-react';
 
 type Subscription = {
   _id: string;
@@ -13,6 +13,7 @@ type Subscription = {
 export default function SubscriptionManagement() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [operationLoading, setOperationLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
@@ -23,11 +24,9 @@ export default function SubscriptionManagement() {
   const [showViewModal, setShowViewModal] = useState(false);
   
   // Form data
-  const [currentSubscription, setCurrentSubscription] = useState<Subscription>({
-    _id: '',
+  const [currentSubscription, setCurrentSubscription] = useState<Omit<Subscription, '_id' | 'createdAt'> & { _id?: string, createdAt?: string }>({
     planType: '',
     price: 0,
-    createdAt: ''
   });
 
   useEffect(() => {
@@ -44,12 +43,13 @@ export default function SubscriptionManagement() {
         }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setSubscriptions(data.data);
-      } else {
-        throw new Error('Failed to fetch subscriptions');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch subscriptions');
       }
+
+      const { data } = await response.json();
+      setSubscriptions(data);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
@@ -57,9 +57,21 @@ export default function SubscriptionManagement() {
     }
   };
 
+  const resetForm = () => {
+    setCurrentSubscription({
+      planType: '',
+      price: 0,
+    });
+  };
+
   const handleViewSubscription = (subscription: Subscription) => {
     setCurrentSubscription(subscription);
     setShowViewModal(true);
+  };
+
+  const handleCreateClick = () => {
+    resetForm();
+    setShowCreateModal(true);
   };
 
   const handleEditClick = (subscription: Subscription) => {
@@ -76,62 +88,101 @@ export default function SubscriptionManagement() {
     const { name, value } = e.target;
     setCurrentSubscription(prev => ({ 
       ...prev, 
-      [name]: name === 'price' ? parseFloat(value) : value 
+      [name]: name === 'price' ? parseFloat(value) || 0 : value 
     }));
+  };
+
+  const handleCreateSubscription = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setOperationLoading(true);
+      const token = localStorage.getItem('adminToken');
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/create-subs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(currentSubscription)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create subscription');
+      }
+
+      const { data } = await response.json();
+      setSubscriptions(prev => [...prev, data]);
+      setShowCreateModal(false);
+      setSuccess('Subscription created successfully');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create subscription');
+    } finally {
+      setOperationLoading(false);
+    }
   };
 
   const handleUpdateSubscription = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setOperationLoading(true);
       const token = localStorage.getItem('adminToken');
-      const updateData = {
-        planType: currentSubscription.planType,
-        price: currentSubscription.price
-      };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/admin/subscriptions/${currentSubscription._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/update-sub/${currentSubscription._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify({
+          planType: currentSubscription.planType,
+          price: currentSubscription.price
+        })
       });
       
-      if (response.ok) {
-        const updatedSubscription = await response.json();
-        setSubscriptions(prev => prev.map(sub => sub._id === updatedSubscription._id ? updatedSubscription : sub));
-        setShowEditModal(false);
-        setSuccess('Subscription updated successfully');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        throw new Error('Failed to update subscription');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update subscription');
       }
+
+      const { data } = await response.json();
+      setSubscriptions(prev => prev.map(sub => sub._id === data._id ? data : sub));
+      setShowEditModal(false);
+      setSuccess('Subscription updated successfully');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to update subscription');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
   const handleDeleteSubscription = async () => {
     try {
+      setOperationLoading(true);
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/admin/subscriptions/${currentSubscription._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/delete-sub/${currentSubscription._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       
-      if (response.ok) {
-        setSubscriptions(prev => prev.filter(sub => sub._id !== currentSubscription._id));
-        setShowDeleteModal(false);
-        setSuccess('Subscription deleted successfully');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        throw new Error('Failed to delete subscription');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete subscription');
       }
+
+      setSubscriptions(prev => prev.filter(sub => sub._id !== currentSubscription._id));
+      setShowDeleteModal(false);
+      setSuccess('Subscription deleted successfully');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to delete subscription');
+    } finally {
+      setOperationLoading(false);
     }
   };
 
@@ -148,7 +199,7 @@ export default function SubscriptionManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-
+        {/* Status Messages */}
         {error && (
           <div className="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded flex justify-between items-center">
             <p>{error}</p>
@@ -173,6 +224,18 @@ export default function SubscriptionManagement() {
           </div>
         )}
 
+        {/* Header and Create Button */}
+        <div className="flex justify-between items-center">
+          <button
+            onClick={handleCreateClick}
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Create New
+          </button>
+        </div>
+
+        {/* Subscription Table */}
         <div className="bg-white shadow overflow-hidden rounded-lg">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -206,14 +269,14 @@ export default function SubscriptionManagement() {
                       </button>
                       <button
                         onClick={() => handleEditClick(subscription)}
-                        className="text-[#00214D] hover:text-yellow-600 p-1 rounded-full hover:bg-yellow-50"
+                        className=" p-1 rounded-full hover:bg-yellow-50"
                         title="Edit Subscription"
                       >
                         <Pencil className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(subscription)}
-                        className="text-[#00214D] hover:text-red-600 p-1 rounded-full hover:bg-red-50"
+                        className=" p-1 rounded-full hover:bg-red-50"
                         title="Delete Subscription"
                       >
                         <Trash className="h-5 w-5" />
@@ -229,6 +292,13 @@ export default function SubscriptionManagement() {
         {subscriptions.length === 0 && !loading && (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <p className="text-gray-500">No subscriptions found</p>
+            <button
+              onClick={handleCreateClick}
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors mx-auto"
+            >
+              <Plus className="h-4 w-4" />
+              Create New Subscription
+            </button>
           </div>
         )}
       </div>
@@ -242,11 +312,66 @@ export default function SubscriptionManagement() {
               <button 
                 onClick={() => setShowCreateModal(false)}
                 className="text-gray-400 hover:text-gray-600"
+                disabled={operationLoading}
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            {/* Form content would go here */}
+            <form onSubmit={handleCreateSubscription}>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="create-planType" className="block text-sm font-medium text-gray-700">Plan Type</label>
+                  <input
+                    type="text"
+                    id="create-planType"
+                    name="planType"
+                    required
+                    value={currentSubscription.planType}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="create-price" className="block text-sm font-medium text-gray-700">Price</label>
+                  <input
+                    type="number"
+                    id="create-price"
+                    name="price"
+                    required
+                    min="0"
+                    step="0.01"
+                    value={currentSubscription.price || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  disabled={operationLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 flex items-center justify-center"
+                  disabled={operationLoading}
+                >
+                  {operationLoading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating...
+                    </span>
+                  ) : 'Create Subscription'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -260,6 +385,7 @@ export default function SubscriptionManagement() {
               <button 
                 onClick={() => setShowEditModal(false)}
                 className="text-gray-400 hover:text-gray-600"
+                disabled={operationLoading}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -275,7 +401,7 @@ export default function SubscriptionManagement() {
                     required
                     value={currentSubscription.planType}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    className="mt-1 block w-full border text-black border-gray-300 rounded-md shadow-sm p-2 "
                   />
                 </div>
                 <div>
@@ -287,9 +413,9 @@ export default function SubscriptionManagement() {
                     required
                     min="0"
                     step="0.01"
-                    value={currentSubscription.price}
+                    value={currentSubscription.price || ''}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-black"
                   />
                 </div>
               </div>
@@ -298,14 +424,24 @@ export default function SubscriptionManagement() {
                   type="button"
                   onClick={() => setShowEditModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  disabled={operationLoading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700"
+                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 flex items-center justify-center"
+                  disabled={operationLoading}
                 >
-                  Save Changes
+                  {operationLoading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Updating...
+                    </span>
+                  ) : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -333,7 +469,7 @@ export default function SubscriptionManagement() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Price</p>
-                <p className="text-md text-gray-900">₵{currentSubscription.price.toFixed(2)}</p>
+                <p className="text-md text-gray-900">₵{currentSubscription.price?.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Subscription ID</p>
@@ -341,7 +477,7 @@ export default function SubscriptionManagement() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Created</p>
-                <p className="text-md text-gray-900">{new Date(currentSubscription.createdAt).toLocaleString()}</p>
+                <p className="text-md text-gray-900">{currentSubscription.createdAt ? new Date(currentSubscription.createdAt).toLocaleString() : 'N/A'}</p>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
@@ -366,6 +502,7 @@ export default function SubscriptionManagement() {
               <button 
                 onClick={() => setShowDeleteModal(false)}
                 className="text-gray-400 hover:text-gray-600"
+                disabled={operationLoading}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -379,15 +516,25 @@ export default function SubscriptionManagement() {
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                disabled={operationLoading}
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteSubscription}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center justify-center"
+                disabled={operationLoading}
               >
-                Delete
+                {operationLoading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                  </span>
+                ) : 'Delete'}
               </button>
             </div>
           </div>

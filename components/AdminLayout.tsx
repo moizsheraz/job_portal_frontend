@@ -63,6 +63,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NavLink href="/admin/user-management">Users</NavLink>
           <NavLink href="/admin/discount-code-management">Discount Codes</NavLink>
           <NavLink href="/admin/advertisement-management">Advertisements</NavLink>
+          <NavLink href="/admin/trend-job-management">Trending Jobs</NavLink>
         </nav>
 
         <main className="bg-[#001737] shadow-lg rounded-xl p-6">

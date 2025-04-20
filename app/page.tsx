@@ -46,10 +46,30 @@ export default function LandingPage() {
   };
   function getDisplayJobsCount(count: number) {
     if (count === 0) return "0";
-    const multiplier = 5; // ya 10 bhi kar sakte ho
+    const multiplier = 10; // ya 10 bhi kar sakte ho
     const rounded = Math.floor((count + (multiplier - 1)) / multiplier) * multiplier;
     return `${rounded}+`;
   }
+  const [featuredJobs, setfeaturedJobs] = useState<any[]>([]);
+  useEffect(() => {
+    fetchFeaturedJobs();
+  }, []);
+  const fetchFeaturedJobs = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/admin/get-all-trend`, {
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setfeaturedJobs(data);
+      } else {
+        throw new Error('Failed to fetch trending jobs');
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -148,42 +168,45 @@ export default function LandingPage() {
                       <p className="text-xs">active users</p>
                     </div>
                   </div>
-                  
-                  {/* Featured Job Cards */}
                   <div className="space-y-4 mt-6">
-                    {[
-                      { role: "Senior Developer", company: "TechCorp", salary: "₵120K-₵150K", location: "Remote", new: true },
-                      { role: "Marketing Manager", company: "GrowthCo", salary: "₵90K-₵110K", location: "New York, NY", new: false },
-                      { role: "UX Designer", company: "CreativeLabs", salary: "₵85K-₵105K", location: "San Francisco, CA", new: true }
-                    ].map((job, index) => (
-                      <div 
-                        key={index} 
-                        onClick={handleJobClick}
-                        className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${index === 0 ? 'z-30' : index === 1 ? 'z-20 -mt-2 ml-2' : 'z-10 -mt-2 ml-4'}`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold">{job.role}</h3>
-                              {job.new && (
-                                <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
-                                  New
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600">{job.company}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium text-[#00214D]">{job.salary}</p>
-                            <div className="flex items-center text-xs text-gray-500">
-                              <MapPin size={12} className="mr-1" />
-                              {job.location}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+  {featuredJobs.map((job, index) => (
+    <div
+      key={job._id}
+      onClick={handleJobClick}
+      className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${
+        index === 0
+          ? 'z-30'
+          : index === 1
+          ? 'z-20 -mt-2 ml-2'
+          : 'z-10 -mt-2 ml-4'
+      }`}
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold">{job.title}</h3>
+            {/* If you have a "new" property */}
+            {job.new && (
+              <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
+                New
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-600">{job.company}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-medium text-[#00214D]">
+          ₵{job.salaryMin} - ₵{job.salaryMax}
+          </p>
+          <div className="flex items-center text-xs text-gray-500">
+            <MapPin size={12} className="mr-1" />
+            {job.location}
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
                   
                   {/* Success Metrics */}
                   <div className="mt-8 bg-blue-50 p-4 rounded-xl">
@@ -441,3 +464,4 @@ export default function LandingPage() {
     </div>
   )
 }
+
