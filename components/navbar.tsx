@@ -9,6 +9,7 @@ import {
   Paperclip,BookOpen,
   Newspaper,Contact,
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip"
 import ChatNotifications from "./Notification"
 import { io } from "socket.io-client"
 import { useState } from "react"
@@ -599,14 +600,6 @@ export default function Navbar() {
                     );
                   })}
 
-                  {/* <MobileAccordion
-                    title="Job Categories"
-                    items={categories.map((c) => ({ title: c.title, href: c.href }))}
-                    icon={Briefcase}
-                  />
-                  <MobileAccordion title="Professional Jobs" items={professionalJobs} icon={Building2} />
-                  <MobileAccordion title="Vocational Jobs" items={vocationalJobs} icon={User} /> */}
-
                   {navLinks.map((link) => (
                     <Link
                       key={link.title}
@@ -638,46 +631,73 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
             {renderMainNavItems()}
           </nav>
+          <TooltipProvider>
+  <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
+    {navLinks.map((link) => (
+      <Tooltip key={link.title}>
+        <TooltipTrigger asChild>
+          <Link
+            href={link.href}
+            className={cn(
+              "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
+              pathname === link.href
+                ? "bg-[#00214D] text-white"
+                : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
+            )}
+          >
+            <link.icon
+              className={cn(
+                "h-6 w-6 opacity-70 transition-colors",
+                pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+              )}
+            />
+            <span className="absolute inset-0 rounded-full" />
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+          <p>{link.title}</p>
+        </TooltipContent>
+      </Tooltip>
+    ))}
+  </nav>
+</TooltipProvider>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
-            {navLinks.map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className={cn(
-                  "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
-                  pathname === link.href
-                    ? "bg-[#00214D] text-white"
-                    : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
-                )}
-              >
-                <link.icon
-                  className={cn(
-                    "h-6 w-6 opacity-70 transition-colors",
-                    pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
-                  )}
-                />
-                <span className="absolute inset-0 rounded-full" />
-              </Link>
-            ))}
-          </nav>
-
-          {/* User Menu */}
-          <div className="flex items-center gap-2">
+   {/* User Menu */}
+<div className="flex items-center gap-2">
   {authState.isAuthenticated && (
     <>
-      <ChatNotifications 
-        socket={socket} 
-        currentUser={authState.user} 
-      />
-      <Link
-        href="/indox"
-        className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
-        aria-label="Chat"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </Link>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <ChatNotifications 
+                socket={socket} 
+                currentUser={authState.user} 
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+            <p>Notifications</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/indox"
+              className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+              aria-label="Chat"
+            >
+              <MessageCircle className="h-6 w-6" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+            <p>Messages</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </>
   )}
   {renderUserMenu()}

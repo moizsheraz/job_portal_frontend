@@ -301,7 +301,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Subscription Management</h1>
-            <p className="text-sm text-gray-500">Welcome, {adminData?.username}</p>
+            <p className="text-sm text-gray-500">Good Day, {adminData?.username}</p>
           </div>
           <button
             onClick={handleLogout}
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
                           {sub.planType}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${sub.price.toFixed(2)}
+                        ₵{sub.price.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {sub.createdAt ? new Date(sub.createdAt).toLocaleDateString() : '-'}

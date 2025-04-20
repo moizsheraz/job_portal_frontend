@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck } from "lucide-react"
+import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck, Wrench } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DollarSign } from "lucide-react"
@@ -41,6 +41,15 @@ export default function LandingPage() {
   const handleJobClick = () => {
     router.push("/search");
   }
+  const handleCategoryClick = (category: string) => {
+    router.push(`/search?category=${encodeURIComponent(category)}`);
+  };
+  function getDisplayJobsCount(count: number) {
+    if (count === 0) return "0";
+    const multiplier = 5; // ya 10 bhi kar sakte ho
+    const rounded = Math.floor((count + (multiplier - 1)) / multiplier) * multiplier;
+    return `${rounded}+`;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -58,7 +67,7 @@ export default function LandingPage() {
               <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
                 <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
-                  <Zap size={16} className="mr-1" /> 1,000+ Jobs Available Now
+                  <Zap size={16} className="mr-1" /> {getDisplayJobsCount(stats?.totalJobsPosted ?? 0)} Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Your Career <span className="text-yellow-400">Evolution</span> Starts Here
@@ -116,10 +125,10 @@ export default function LandingPage() {
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
-                  {["Remote", "Full-time", "Tech", "Healthcare", "Marketing"].map((tag, index) => (
+                  {["full-time", "part-time", "Freelance", "internship"].map((tag, index) => (
                     <Link 
                       key={index} 
-                      href="#" 
+                      href={`/search?employmentType=${tag}`} 
                       className="px-3 py-1 bg-yellow-600 text-white rounded-full border border-yellow-800 hover:bg-yellow-900 hover:border-yellow-900 transition-colors"
                     >
                       {tag}
@@ -135,8 +144,8 @@ export default function LandingPage() {
                   <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">
                     <Users size={24} />
                     <div>
-                      <p className="text-sm font-medium">2,547</p>
-                      <p className="text-xs">active now</p>
+                    {(stats?.totalFreelancers || 0) + (stats?.totalJobSeekers || 0)}
+                      <p className="text-xs">active users</p>
                     </div>
                   </div>
                   
@@ -271,68 +280,62 @@ export default function LandingPage() {
           </div>
         </section>
 
-     {/* Featured Job Types Section */}
-<section className="py-16 md:py-24 bg-gray-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center mb-16">
-      <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
-        Career Paths
-      </div>
-      <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Featured Job Types</h2>
-      <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-        Explore different career opportunities tailored to your skills and preferences.
-      </p>
-    </div>
+        <section className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#00214D] mb-4">Explore Job Categories</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Find opportunities that match your professional background
+          </p>
+        </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {[
-        { 
-          name: "Remote Work", 
-          description: "Work from anywhere with flexible schedules",
-          icon: "🌍",
-          color: "bg-blue-100 text-blue-600"
-        },
-        { 
-          name: "Freelance Gigs", 
-          description: "Short-term projects for independent professionals",
-          icon: "🛠️",
-          color: "bg-purple-100 text-purple-600"
-        },
-        { 
-          name: "Full-Time Roles", 
-          description: "Stable positions with comprehensive benefits",
-          icon: "💼",
-          color: "bg-green-100 text-green-600"
-        },
-        { 
-          name: "Internships", 
-          description: "Gain experience and build your network",
-          icon: "🎓",
-          color: "bg-orange-100 text-orange-600"
-        }
-      ].map((type, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all group border border-gray-100 hover:border-[#00214D] hover:opacity-80 flex flex-col h-full"
-        >
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${type.color} group-hover:scale-110 transition-transform`}>
-            <span className="text-2xl">{type.icon}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* White-Collar Jobs */}
+          <div 
+            onClick={() => handleCategoryClick("White-Collar Jobs")}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-blue-200 cursor-pointer"
+          >
+            <div className="flex items-start">
+              <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                <Briefcase className="text-blue-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-[#00214D] mb-2">White-Collar Jobs</h3>
+                <p className="text-gray-600 mb-4">
+                  Professional, administrative, and managerial positions requiring formal education.
+                </p>
+                <div className="text-blue-600 text-sm font-medium hover:underline inline-flex items-center">
+                  View openings
+                  <ChevronRight size={16} className="ml-1" />
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="font-bold text-lg text-[#00214D] mb-2">{type.name}</h3>
-          <p className="text-gray-600 mb-4">{type.description}</p>
-          <div className="mt-auto pt-4">
-            <button 
-              onClick={() => router.push("/about")}
-              className="text-[#00214D] text-sm font-medium hover:underline hover:opacity-80 inline-flex items-center"
-            >
-              Learn more <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
-            </button>
+
+          {/* Vocational Jobs */}
+          <div 
+            onClick={() => handleCategoryClick("Vocational Jobs")}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-yellow-200 cursor-pointer"
+          >
+            <div className="flex items-start">
+              <div className="bg-yellow-100 p-3 rounded-lg mr-4">
+                <Wrench className="text-yellow-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-[#00214D] mb-2">Vocational Jobs</h3>
+                <p className="text-gray-600 mb-4">
+                  Skilled trade positions requiring technical training and hands-on expertise.
+                </p>
+                <div className="text-yellow-600 text-sm font-medium hover:underline inline-flex items-center">
+                  View openings
+                  <ChevronRight size={16} className="ml-1" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </div>
+    </section>
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-white">

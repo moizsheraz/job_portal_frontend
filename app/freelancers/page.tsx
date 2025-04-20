@@ -108,7 +108,7 @@ export default function FreelancersPage() {
                       onClick={() => handleCardClick(freelancer._id)}
                       className="group cursor-pointer bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:translate-y-[-5px]"
                     >
-                      <div className="bg-gradient-to-r from-blue-900 to-blue-700 h-20"></div>
+                      <div className="bg-[#00214D] h-20"></div>
                       <div className="px-6 pt-0 pb-6 flex flex-col items-center text-center relative">
                         <div className="w-24 h-24 relative rounded-full overflow-hidden mb-4 border-4 border-white mt-[-48px] shadow-md">
                           <Image
@@ -124,7 +124,7 @@ export default function FreelancersPage() {
                           {freelancer.profession}
                         </span>
                         <div className="mt-4 w-full">
-                          <button className="w-full py-2 bg-yellow-400 text-[#00214D] rounded-lg font-medium group-hover:bg-yellow-300 transition-colors">
+                          <button className="w-full rounded-xl py-2 bg-yellow-600 text-[#00214D] rounded-lg font-medium group-hover:bg-yellow-300 transition-colors">
                             View Profile
                           </button>
                         </div>

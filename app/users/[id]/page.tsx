@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Mail, Phone, MapPin, Briefcase, 
   Calendar, GraduationCap, Award, FileText,
-  Download, Edit2, Star, Building
+  Download, Edit2, Star, Building, MessageSquare
 } from 'lucide-react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
@@ -77,7 +77,6 @@ export default function UserProfilePage() {
   };
 
   const handleDownloadResume = async () => {
- 
     try {
       console.log('Starting resume download...');
       console.log('User ID:', params.id);
@@ -117,6 +116,24 @@ export default function UserProfilePage() {
         status: error.response?.status
       });
       toast.error(error.response?.data?.message || 'Failed to download resume');
+    }
+  };
+
+  const handleStartChat = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/create-chat`,
+        { otherUserId: user._id },
+        { withCredentials: true }
+      );
+      
+      // Navigate to the chat page with the new chat ID
+      window.location.href = `/indox`;
+    } catch (error: any) {
+      console.error('Error creating chat:', error);
+      toast.error(error.response?.data?.message || 'Failed to start chat');
     }
   };
 
@@ -191,6 +208,14 @@ export default function UserProfilePage() {
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
                     <p className="text-gray-600 text-lg">{user.profession || 'Professional'}</p>
                   </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleStartChat}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors shadow-md hover:shadow-lg"
+                      title="Start Chat"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={handleDownloadResume}
                       className="flex items-center gap-2 px-6 py-2.5 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors shadow-md hover:shadow-lg"
@@ -198,6 +223,7 @@ export default function UserProfilePage() {
                       <Download className="h-4 w-4" />
                       <span className="font-medium">Download Resume</span>
                     </button>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center text-gray-600">
@@ -251,4 +277,4 @@ export default function UserProfilePage() {
       <Footer />
     </>
   );
-} 
+}
