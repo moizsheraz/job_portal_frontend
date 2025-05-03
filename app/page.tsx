@@ -57,7 +57,7 @@ export default function LandingPage() {
               <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
                 <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
-                  <Zap size={16} className="mr-1" /> 1,000+ Jobs Available Now
+                  <Zap size={16} className="mr-1" /> {stats?.totalJobsPosted-1}+ Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Your Career <span className="text-yellow-400">Evolution</span> Starts Here
