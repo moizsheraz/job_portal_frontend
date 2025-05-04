@@ -1,177 +1,317 @@
-import { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState, useEffect, useRef } from 'react';
+import { Bell, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { io } from 'socket.io-client';
+import { formatDistanceToNow } from 'date-fns';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { userService } from '@/app/services/userService';
+import { useRouter } from 'next/navigation';
 
 interface User {
-  _id?: string;  
-  name?: string;
+  _id: string;
+  name: string;
+  email: string;
   profilePicture?: string;
-  picture?: string; 
-  given_name?: string;
-  family_name?: string;
-  email?: string;
 }
 
 interface Notification {
-  id: string;
-  sender: User;
-  content: string;
-  chatId: string;
-  timestamp: Date;
-  read: boolean;
+  _id: string;
+  userId: string;
+  message: string;
+  type: 'shortlisted' | 'Message!' | 'new_job' | 'application_update';
+  isRead: boolean;
+  createdAt: string;
+  sender?: User;
+  chatId?: string;
+  jobId?: string;
 }
 
-interface ChatNotificationsProps {
-  currentUser: User | null; 
-}
+const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
+  withCredentials: true,
+  transports: ['websocket', 'polling'],
+  autoConnect: true,
+  path: '/socket.io',
+  extraHeaders: {
+    'Access-Control-Allow-Credentials': 'true'
+  }
+});
 
-const ChatNotifications: React.FC<ChatNotificationsProps> = ({currentUser }) => {
-    const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
-        withCredentials: true,
-        transports: ['websocket', 'polling'],
-        autoConnect: true,
-        path: '/socket.io',
-        extraHeaders: {
-          'Access-Control-Allow-Credentials': 'true'
-        }
-      });
-      console.log(socket);
+const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(4);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const notificationSound = useRef<HTMLAudioElement | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
+  // Initialize audio
   useEffect(() => {
-    if (!socket || !currentUser) return;
+    notificationSound.current = new Audio('/notification-sound.mp3');
+    notificationSound.current.volume = 0.3;
+  }, []);
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        console.log(currentUser.role);
+        setCurrentUser(currentUser);
 
-    const handleReceiveMessage = (message: { 
-      _id: string;
-      sender: User;
-      content: string;
-      chatId: string;
-      createdAt: string;
-    }) => {
-      // Updated check to handle optional _id
-      if (message.sender._id === currentUser._id) return;
-
-      const newNotification: Notification = {
-        id: message._id,
-        sender: message.sender,
-        content: message.content,
-        chatId: message.chatId,
-        timestamp: new Date(message.createdAt),
-        read: false
+        } catch (error) {
+          console.error("Error fetching current user:", error);
+        }
       };
+    
+      fetchCurrentUser();
+    }, []);
 
-      setNotifications(prev => [newNotification, ...prev.slice(0, 19)]);
-      setUnreadCount(prev => prev + 1);
+
+  // Fetch initial notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/notifications?userId=${currentUser?._id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setNotifications(data.notifications);
+          setUnreadCount(data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    socket.on('receive_message', handleReceiveMessage);
+    fetchNotifications();
+  }, [currentUser?._id]);
+
+  // Socket connection handlers
+  useEffect(() => {
+    const onConnect = () => {
+      setIsConnected(true);
+      console.log('Socket connected');
+    };
+
+    const onDisconnect = () => {
+      setIsConnected(false);
+      console.log('Socket disconnected');
+    };
+
+    const onNotification = (notification: Notification) => {
+      console.log('New notification received:', notification);
+      
+      // Only process if notification is for current user
+      if (notification.userId === currentUser?._id) {
+        setNotifications(prev => [notification, ...prev.slice(0, 19)]);
+        setUnreadCount(prev => prev + 1);
+        
+        // Play sound if dropdown is closed
+        if (!isOpen && notificationSound.current) {
+          notificationSound.current.play().catch(e => console.log('Audio play failed:', e));
+        }
+      }
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('new-notification', onNotification);
 
     return () => {
-      socket.off('receive_message', handleReceiveMessage);
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('new-notification', onNotification);
     };
-  }, [socket, currentUser]);
+  }, [currentUser?._id, isOpen]);
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/notifications/${notificationId}/read`, {
+        method: 'PATCH'
+      });
+
+      setNotifications(prev =>
+        prev.map(n => (n._id === notificationId ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/notifications/mark-all-read`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: currentUser?._id })
+      });
+
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
 
   const handleNotificationClick = (notification: Notification) => {
-    setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
-    setUnreadCount(prev => Math.max(0, prev - 1));
-    router.push(`/indox?chat=${notification.chatId}`);
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
-  };
-
-  // More robust getInitials function to handle UserData
-  const getInitials = (user: User | undefined): string => {
-    if (!user) return '?';
-    
-    // Try name first
-    if (user.name) {
-      return user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (!notification.isRead) {
+      markAsRead(notification._id);
     }
-    
-    // Fall back to given_name and family_name
-    if (user.given_name || user.family_name) {
-      return `${user.given_name?.[0] || ''}${user.family_name?.[0] || ''}`.toUpperCase();
-    }
-    
-    return '?';
+    if (notification.type === 'Message!') {
+      router.push(`/indox`);
+    } 
   };
 
-  // Helper to get profile picture URL
-  const getProfilePicture = (user: User | undefined): string | undefined => {
-    return user?.profilePicture || user?.picture;
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'Message!':
+        return '💬';
+      case 'shortlisted':
+        return '🏆';
+      case 'new_job':
+        return '📢';
+      case 'application_update':
+        return '🔄';
+      default:
+        return '🔔';
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
-    <DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="ghost" className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors" aria-label="Notifications">
-      <Bell className="w-14 h-14" style={{ width: '1.5rem', height: '1.5rem' }} />  {/* Direct styling added */}
-      {unreadCount > 0 && (
-        <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-5 flex items-center justify-center rounded-full px-1 border-2 border-white">
-          {unreadCount > 9 ? '9+' : unreadCount}
-        </Badge>
-      )}
-    </Button>
+    <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
+     <DropdownMenuTrigger className="relative h-10 w-10 rounded-full hover:bg-[#00214D]/10 transition-all duration-300 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#00214D] focus-visible:ring-offset-2">
+    <Bell className="text-[#00214D] hover:text-[#00214D]/90 transition-colors" size={28} />
+    {unreadCount > 0 && (
+      <span className="absolute -right-1 -top-1 h-6 w-6 rounded-full flex items-center justify-center bg-red-500 text-white text-xs font-medium border-2 border-white shadow-sm">
+        {unreadCount > 9 ? '9+' : unreadCount}
+      </span>
+    )}
   </DropdownMenuTrigger>
-  <DropdownMenuContent align="end" className="w-80 rounded-xl shadow-lg p-0">
-    <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-[#00214D] text-white rounded-t-xl">
-      <h3 className="font-bold">Notifications</h3>
-      {unreadCount > 0 && (
-        <Button variant="ghost" size="sm" className="text-xs text-blue-200 hover:text-white hover:bg-blue-600/20" onClick={markAllAsRead}>
-          Mark all as read
-        </Button>
-      )}
-    </div>
-    
-    <ScrollArea className="max-h-[350px]">
-      {notifications.length > 0 ? (
-        notifications.map((notification) => (
-          <DropdownMenuItem key={notification.id} className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`} onClick={() => handleNotificationClick(notification)}>
-            <div className="flex items-start gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={getProfilePicture(notification.sender)} />
-                <AvatarFallback className="bg-blue-500 text-white">
-                  {getInitials(notification.sender)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-semibold text-sm text-gray-800">
-                    {notification.sender.name || 'Unknown User'}
-                  </h4>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">
-                    {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600 truncate mt-1">
-                  {notification.content}
-                </p>
-              </div>
-            </div>
-          </DropdownMenuItem>
-        ))
-      ) : (
-        <div className="py-10 text-center text-gray-500">
-          <p>No new notifications</p>
+    <DropdownMenuContent
+      align="end"
+      className="w-[380px] rounded-2xl p-0 shadow-xl border border-[#00214D]/20 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#00214D] to-[#004080] text-white">
+        <div className="flex items-center space-x-3">
+          <Bell className="h-6 w-6" />
+          <h3 className="font-semibold text-lg">Notifications</h3>
         </div>
-      )}
-    </ScrollArea>
-  </DropdownMenuContent>
-</DropdownMenu>
-
+        {unreadCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full px-3 py-1 transition-all"
+            onClick={markAllAsRead}
+          >
+            Mark all as read
+          </Button>
+        )}
+      </div>
+  
+      {/* Notification List */}
+      <ScrollArea className="h-[400px]">
+        {loading ? (
+          <div className="flex flex-col space-y-3 p-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-start space-x-3 p-3 rounded-xl bg-gray-50 animate-pulse">
+                <div className="h-10 w-10 rounded-full bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-3/4 rounded bg-gray-200" />
+                  <div className="h-3 w-full rounded bg-gray-200" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : notifications.length > 0 ? (
+          <div className="p-2">
+            {notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification._id}
+                className={cn(
+                  "p-3 mx-2 my-1 rounded-xl cursor-pointer transition-all duration-200",
+                  "hover:bg-[#00214D]/5 focus:bg-[#00214D]/10",
+                  !notification.isRead && "bg-blue-50 border border-blue-100"
+                )}
+                onClick={() => handleNotificationClick(notification)}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Avatar/Icon */}
+                  <div className="flex-shrink-0 relative">
+                    {notification.sender ? (
+                      <Avatar className="h-11 w-11 rounded-xl border-2 border-white shadow-sm">
+                        <AvatarImage src={notification.sender.profilePicture} />
+                        <AvatarFallback className="bg-gradient-to-br from-[#00214D] to-[#004080] text-white font-medium">
+                          {getInitials(notification.sender.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-[#00214D] to-[#004080] flex items-center justify-center text-xl text-white shadow-sm">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                    )}
+                    {!notification.isRead && (
+                      <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-blue-500 border-2 border-white" />
+                    )}
+                  </div>
+  
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium text-[#00214D] truncate">
+                        {notification.sender?.name || notification.type.replace('_', ' ')}
+                      </h4>
+                      <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {notification.message}
+                    </p>
+                  </div>
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-8 space-y-3">
+            <div className="p-4 bg-[#00214D]/10 rounded-full">
+              <Bell className="h-6 w-6 text-[#00214D]" />
+            </div>
+            <p className="font-medium text-[#00214D]">No notifications yet</p>
+            <p className="text-sm text-gray-500 text-center max-w-[240px]">
+              We'll notify you when something new arrives
+            </p>
+          </div>
+        )}
+      </ScrollArea>
+  
+      {/* Footer */}
+      <div className="p-3 border-t border-[#00214D]/10 bg-gray-50/50">
+        <Button 
+          variant="ghost" 
+          className="w-full text-[#00214D] hover:bg-[#00214D]/10 rounded-lg py-2 text-sm font-medium"
+        >
+          View all notifications
+        </Button>
+      </div>
+    </DropdownMenuContent>
+  </DropdownMenu>
   );
 };
 
-export default ChatNotifications;
+export default NotificationsDropdown;

@@ -671,8 +671,6 @@ export default function Navbar() {
           <TooltipTrigger asChild>
             <div>
               <ChatNotifications 
-                socket={socket} 
-                currentUser={authState.user} 
               />
             </div>
           </TooltipTrigger>

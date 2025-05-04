@@ -219,7 +219,12 @@ const ChatComponent = () => {
     };
 
     socket.emit('send_message', messageToSend);
-
+    socket.emit('send-notification', {
+      recipientId:selectedChat.participants[0]._id != user?._id ? selectedChat.participants[0]._id : selectedChat.participants[1]._id,
+      message:`You have a new message from ${user.name}`,
+      type: "Message!"
+    })
+    
     const optimisticMessage: Message = {
       _id: Date.now().toString(),
       content: newMessage.trim(),
