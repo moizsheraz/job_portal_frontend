@@ -93,19 +93,46 @@ export default function CompanyProfile(): JSX.Element {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // First show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData(prev => ({
-        ...prev,
-        logo: reader.result as string
-      }));
-    };
-    reader.readAsDataURL(file);
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Logo image is too large. Please use an image smaller than 2MB.');
+      return;
+    }
 
-    // Then upload to server if company exists
-    if (company?._id) {
-      try {
+    // Check image dimensions
+    const checkImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+      return new Promise((resolve) => {
+        const img = new window.Image();
+        img.onload = () => {
+          resolve({
+            width: img.width,
+            height: img.height
+          });
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    };
+
+    try {
+      const dimensions = await checkImageDimensions(file);
+      
+      // Check if image is too large (max 2000px on either side)
+      if (dimensions.width > 2000 || dimensions.height > 2000) {
+        toast.error('Logo resolution is too high. Please use an image with maximum 2000x2000 pixels.');
+        return;
+      }
+
+      // First show preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          logo: reader.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+
+      if (company?._id) {
         const formData = new FormData();
         formData.append('logo', file);
 
@@ -122,13 +149,12 @@ export default function CompanyProfile(): JSX.Element {
 
         setCompany(response.data.company);
         toast.success('Logo updated successfully!');
-      } catch (error) {
-        toast.error('Error uploading logo: ' + (error as Error).message);
       }
+    } catch (error) {
+      toast.error('Error processing image: ' + (error as Error).message);
     }
   };
 
-  // Create company function
   const createCompany = async (): Promise<void> => {
     try {
       const response = await axios.post(

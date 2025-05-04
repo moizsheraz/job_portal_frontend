@@ -3,9 +3,10 @@ import Link from "next/link"
 import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck } from "lucide-react"
+import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck, Wrench } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { DollarSign } from "lucide-react"
 
 interface StatsData {
   totalJobSeekers: number;
@@ -21,7 +22,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stats-home`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/stats-home`);
         const data = await response.json();
         setStats(data);
       } catch (error) {
@@ -40,6 +41,32 @@ export default function LandingPage() {
   const handleJobClick = () => {
     router.push("/search");
   }
+  const handleCategoryClick = (category: string) => {
+    router.push(`/search?category=${encodeURIComponent(category)}`);
+  };
+  function getDisplayJobsCount(count: number) {
+    return count - (count % 10);
+  }
+  const [featuredJobs, setfeaturedJobs] = useState<any[]>([]);
+  useEffect(() => {
+    fetchFeaturedJobs();
+  }, []);
+  const fetchFeaturedJobs = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/admin/get-all-trend`, {
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setfeaturedJobs(data);
+      } else {
+        throw new Error('Failed to fetch trending jobs');
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -57,7 +84,7 @@ export default function LandingPage() {
               <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
                 <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
-                  <Zap size={16} className="mr-1" /> {stats?.totalJobsPosted-1}+ Jobs Available Now
+                  <Zap size={16} className="mr-1" /> {getDisplayJobsCount(stats?.totalJobsPosted ?? 0)}+ Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Your Career <span className="text-yellow-400">Evolution</span> Starts Here
@@ -78,71 +105,47 @@ export default function LandingPage() {
 
                 {/* Enhanced Search Bar with improved icon contrast */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-5xl mx-auto">
-                  <div className="flex flex-col gap-4">
-                    {/* Search form */}
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                      {/* Skills input */}
-                      <div className="relative md:col-span-5">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-                          <Search size={18} />
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Job title, skills, or company"
-                          className="w-full pl-10 pr-4 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all bg-white"
-                        />
-                      </div>
-                      
-                      {/* Region selector */}
-                      <div className="relative md:col-span-5">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-800">
-                          <MapPin size={18} />
-                        </div>
-                        <select
-                          className="w-full appearance-none bg-white pl-10 pr-10 py-3 rounded-md border border-yellow-300 focus:border-yellow-800 focus:ring-1 focus:ring-yellow-200 focus:outline-none transition-all cursor-pointer"
-                        >
-                          <option value="">All Regions</option>
-                          <option value="Ashanti">Ashanti</option>
-                          <option value="Greater Accra">Greater Accra</option>
-                          <option value="Northern">Northern</option>
-                          <option value="Volta">Volta</option>
-                          <option value="Central">Central</option>
-                          <option value="Western">Western</option>
-                          <option value="Upper-West">Upper-West</option>
-                          <option value="Upper-East">Upper-East</option>
-                          <option value="Oti">Oti</option>
-                          <option value="Savannah">Savannah</option>
-                          <option value="Bono East">Bono East</option>
-                          <option value="Western North">Western North</option>
-                          <option value="Brong Ahafo">Brong Ahafo</option>
-                          <option value="North East">North East</option>
-                          <option value="Ahafo">Ahafo</option>
-                          <option value="Eastern">Eastern</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-yellow-800">
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                      
-                      {/* Search button */}
-                      <button 
-                        type="submit"
-                        className="md:col-span-2 py-3 px-4 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center"
-                      >
-                        <Search size={18} className="mr-1" />
-                      </button>
-                    </form>
-                  </div>
-                </div>
+  <div className="flex flex-col gap-4">
+    <div className="text-center">
+      <h3 className="text-xl font-semibold text-gray-800 mb-2">Find Your Perfect Job</h3>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-2">
+        {/* Job title icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <Briefcase size={18} className="text-yellow-800" />
+          <span>Filter by job title</span>
+        </div>
+        
+        {/* Location icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <MapPin size={18} className="text-yellow-800" />
+          <span>Choose your region</span>
+        </div>
+        
+        {/* Salary icon */}
+        <div className="flex items-center gap-2 text-gray-700">
+          <span className="font-bold text-xl text-yellow-800">₵</span>
+          <span>Set salary range</span>
+        </div>
+      </div>
+      
+      {/* CTA Button */}
+      <a 
+        href="/search"
+        className="inline-block mt-4 rounded-xl py-3 px-8 bg-yellow-600 hover:bg-yellow-900 transition-colors duration-200 text-white font-medium rounded-md flex items-center justify-center mx-auto"
+      >
+        <Search size={18} className="mr-2" />
+        <span>Explore All Jobs</span>
+      </a>
+    </div>
+  </div>
+</div>
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
-                  {["Remote", "Full-time", "Tech", "Healthcare", "Marketing"].map((tag, index) => (
+                  {["full-time", "part-time", "Freelance", "internship"].map((tag, index) => (
                     <Link 
                       key={index} 
-                      href="#" 
+                      href={`/search?employmentType=${tag}`} 
                       className="px-3 py-1 bg-yellow-600 text-white rounded-full border border-yellow-800 hover:bg-yellow-900 hover:border-yellow-900 transition-colors"
                     >
                       {tag}
@@ -158,46 +161,49 @@ export default function LandingPage() {
                   <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">
                     <Users size={24} />
                     <div>
-                      <p className="text-sm font-medium">2,547</p>
-                      <p className="text-xs">active now</p>
+                    {(stats?.totalFreelancers || 0) + (stats?.totalJobSeekers || 0)}
+                      <p className="text-xs">active users</p>
                     </div>
                   </div>
-                  
-                  {/* Featured Job Cards */}
                   <div className="space-y-4 mt-6">
-                    {[
-                      { role: "Senior Developer", company: "TechCorp", salary: "$120K-$150K", location: "Remote", new: true },
-                      { role: "Marketing Manager", company: "GrowthCo", salary: "$90K-$110K", location: "New York, NY", new: false },
-                      { role: "UX Designer", company: "CreativeLabs", salary: "$85K-$105K", location: "San Francisco, CA", new: true }
-                    ].map((job, index) => (
-                      <div 
-                        key={index} 
-                        onClick={handleJobClick}
-                        className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${index === 0 ? 'z-30' : index === 1 ? 'z-20 -mt-2 ml-2' : 'z-10 -mt-2 ml-4'}`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold">{job.role}</h3>
-                              {job.new && (
-                                <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
-                                  New
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600">{job.company}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium text-[#00214D]">{job.salary}</p>
-                            <div className="flex items-center text-xs text-gray-500">
-                              <MapPin size={12} className="mr-1" />
-                              {job.location}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+  {featuredJobs.map((job, index) => (
+    <div
+      key={job._id}
+      onClick={handleJobClick}
+      className={`bg-white p-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer border-l-4 border-[#00214D] relative transform hover:-translate-y-1 ${
+        index === 0
+          ? 'z-30'
+          : index === 1
+          ? 'z-20 -mt-2 ml-2'
+          : 'z-10 -mt-2 ml-4'
+      }`}
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold">{job.title}</h3>
+            {/* If you have a "new" property */}
+            {job.new && (
+              <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
+                New
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-600">{job.company}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-medium text-[#00214D]">
+          ₵{job.salaryMin} - ₵{job.salaryMax} / month
+          </p>
+          <div className="flex items-center text-xs text-gray-500">
+            <MapPin size={12} className="mr-1" />
+            {job.location}
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
                   
                   {/* Success Metrics */}
                   <div className="mt-8 bg-blue-50 p-4 rounded-xl">
@@ -284,7 +290,7 @@ export default function LandingPage() {
                   </div>
                   <div className="mt-6 inline-flex items-center text-sm font-medium text-blue-700">
                     <span className="px-2 py-1 bg-blue-100 rounded-full text-xs mr-2">{feature.highlight}</span>
-                    <Link href="#" className="flex items-center hover:underline hover:opacity-80">
+                    <Link href="/about" className="flex items-center hover:underline hover:opacity-80">
                       Learn more <ChevronRight size={16} className="ml-1" />
                     </Link>
                   </div>
@@ -294,45 +300,62 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Categories Section */}
-        <section className="py-16 md:py-24 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 mb-4">
-                Endless Opportunities
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#00214D] mb-4">Explore Jobs by Category</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Discover your perfect role across industries and specializations.
-              </p>
-            </div>
+        <section className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#00214D] mb-4">Explore Job Categories</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Find opportunities that match your professional background
+          </p>
+        </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[
-                { name: "White-Collar Jobs", icon: "💻", color: "bg-[#00214D] bg-opacity-10 text-[#00214D]", jobs: "5,234" },
-                { name: "Vocational Jobs", icon: "📊", color: "bg-purple-100 text-purple-600", jobs: "3,187" },
-                { name: "Education", icon: "🎓", color: "bg-indigo-100 text-indigo-600", jobs: "2,318" },
-                { name: "Engineering", icon: "⚙️", color: "bg-gray-100 text-gray-600", jobs: "3,547" },
-              ].map((category, index) => (
-                <Link
-                  href="#"
-                  key={index}
-                  className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all group border border-gray-100 hover:border-[#00214D] hover:opacity-80 flex flex-col h-full"
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${category.color} group-hover:scale-110 transition-transform`}>
-                    <span className="text-2xl">{category.icon}</span>
-                  </div>
-                  <h3 className="font-bold text-lg text-[#00214D] group-hover:text-[#00214D] group-hover:opacity-80 transition-colors">{category.name}</h3>
-                  <div className="mt-auto pt-4">
-                    <Link href="/search" className="text-[#00214D] text-sm font-medium group-hover:underline group-hover:opacity-80 inline-flex items-center">
-                      Browse Jobs <ChevronRight size={16} className="ml-1 group-hover:ml-2 transition-all" />
-                    </Link>
-                  </div>
-                </Link>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* White-Collar Jobs */}
+          <div 
+            onClick={() => handleCategoryClick("White-Collar Jobs")}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-blue-200 cursor-pointer"
+          >
+            <div className="flex items-start">
+              <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                <Briefcase className="text-blue-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-[#00214D] mb-2">White-Collar Jobs</h3>
+                <p className="text-gray-600 mb-4">
+                  Professional, administrative, and managerial positions requiring formal education.
+                </p>
+                <div className="text-blue-600 text-sm font-medium hover:underline inline-flex items-center">
+                  View openings
+                  <ChevronRight size={16} className="ml-1" />
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+
+          {/* Vocational Jobs */}
+          <div 
+            onClick={() => handleCategoryClick("Vocational Jobs")}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-yellow-200 cursor-pointer"
+          >
+            <div className="flex items-start">
+              <div className="bg-yellow-100 p-3 rounded-lg mr-4">
+                <Wrench className="text-yellow-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-[#00214D] mb-2">Vocational Jobs</h3>
+                <p className="text-gray-600 mb-4">
+                  Skilled trade positions requiring technical training and hands-on expertise.
+                </p>
+                <div className="text-yellow-600 text-sm font-medium hover:underline inline-flex items-center">
+                  View openings
+                  <ChevronRight size={16} className="ml-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-white">
@@ -415,7 +438,7 @@ export default function LandingPage() {
                   Ready to Accelerate Your Career?
                 </h2>
                 <p className="text-xl text-white text-opacity-90 mb-8">
-                  Join over 10 million professionals who have already found their dream jobs through our platform.
+                  Join the numerous professionals who have already found their dream jobs through our platform.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
@@ -426,7 +449,7 @@ export default function LandingPage() {
                   </Link>
                 </div>
                 <p className="text-white text-opacity-80 mt-6 text-sm">
-                  Free to join • No credit card required • Cancel anytime
+                  Free to join • No payment required to signup
                 </p>
               </div>
             </div>
@@ -434,18 +457,8 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Sticky WhatsApp Icon */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Link
-          href="https://wa.me/1234567890"
-          target="_blank"
-          className="bg-white p-2 rounded-full shadow-lg  transition-colors duration-200 flex items-center justify-center"
-        >
-         <img src="./icons8-whatsapp.gif" alt="WhatsApp" width={40} height={40} className="text-white" />
-        </Link>
-      </div>
-
       <Footer />
     </div>
   )
 }
+

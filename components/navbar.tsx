@@ -9,7 +9,11 @@ import {
   Paperclip,BookOpen,
   Newspaper,Contact,
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip"
+import ChatNotifications from "./Notification"
 import { io } from "socket.io-client"
+import { useState } from "react"
+import { RecruiterModal } from "./RecruiterModal"
 
 import {
   NavigationMenu, NavigationMenuContent, NavigationMenuItem,
@@ -141,7 +145,8 @@ const mainNavItems = [
     title: "Employers Post Job",
     href: "/post-job",
     requiresAuth: true,
-    icon: Briefcase
+    icon: Briefcase,
+    requiresRecruiter: true,
   },
   {
     title: "Browse Professional Jobs",
@@ -153,14 +158,18 @@ const mainNavItems = [
     title: "Freelancers Post Job",
     href: "/post-job",
     requiresAuth: true,
-    icon: Paperclip
+    icon: Paperclip,
+    requiresRecruiter: true,
+    
   },
   {
     title: "Find Freelancers",
     href: "/freelancers",
     requiresAuth: false,
-    icon: User
-  }
+    icon: User,
+    requiresRecruiter: false,
+  },
+
 ]
 
 // Components
@@ -357,8 +366,15 @@ export default function Navbar() {
     
     return `${given.charAt(0)}${family.charAt(0)}`;
   };
+  const handleLogout = async () => {
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/custom-logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+  
+    window.location.href = "https://alljobsgh.com";
+  };
 
-  // User menu components
   const UserMenuAuthenticated = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -417,13 +433,15 @@ export default function Navbar() {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
-          <Link href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`} className="flex items-center gap-2 cursor-pointer">
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </Link>
-        </DropdownMenuItem>
-     
+        <DropdownMenuItem className="rounded-lg m-1 hover:bg-[#00214D] hover:text-white font-bold text-[#00214D]">
+  <Link
+    href={`/logout`}
+    className="flex items-center gap-2 w-full cursor-pointer p-2 text-left"
+  >
+    <LogOut className="h-4 w-4" />
+    <span>Sign Out</span>
+  </Link>
+</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -472,29 +490,56 @@ export default function Navbar() {
       : <UserMenuGuest />;
   };
 
-  // Render main navigation items with auth checks
   const renderMainNavItems = () => {
-    return mainNavItems.map((item) => {
-      // if (item.requiresAuth && !authState.isAuthenticated) {
-      //   return null; // Skip rendering if auth is required but user is not authenticated
-      // }
-      return (
-        <Link
-          key={item.title}
-          href={item.href}
-          className={cn(
-            "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
-            pathname === item.href
-              ? "bg-[#00214D] text-white"
-              : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
-          )}
-        >
-          <item.icon className="h-5 w-5" />
-          <span>{item.title}</span>
-        </Link>
-      );
-    });
+    const [showModal, setShowModal] = useState(false);
+  
+    return (
+      <>
+        {mainNavItems.map((item) => {
+          const isBlocked = item.requiresAuth && !authState.isAuthenticated;
+  
+          return (
+            <div key={item.title} className="relative">
+              {isBlocked ? (
+                <button
+                  className={cn(
+                    "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
+                    pathname === item.href
+                      ? "bg-[#00214D] text-white"
+                      : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
+                  )}
+                  onClick={() => setShowModal(true)}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-1 px-4 py-2 rounded-full font-bold transition-colors",
+                    pathname === item.href
+                      ? "bg-[#00214D] text-white"
+                      : "text-[#00214D] hover:bg-[#00214D] hover:text-white"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </Link>
+              )}
+            </div>
+          );
+        })}
+        <RecruiterModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          isAuthenticated={authState.isAuthenticated}
+        />
+      </>
+    );
   };
+  
+  
 
   return (
     <header
@@ -535,7 +580,6 @@ export default function Navbar() {
                 <nav className="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-250px)]">
                   {/* Render main nav items in mobile menu */}
                   {mainNavItems.map((item) => {
-                    if (item.requiresAuth && !authState.isAuthenticated) return null;
                     return (
                       <Link
                         key={item.title}
@@ -555,14 +599,6 @@ export default function Navbar() {
                       </Link>
                     );
                   })}
-
-                  {/* <MobileAccordion
-                    title="Job Categories"
-                    items={categories.map((c) => ({ title: c.title, href: c.href }))}
-                    icon={Briefcase}
-                  />
-                  <MobileAccordion title="Professional Jobs" items={professionalJobs} icon={Building2} />
-                  <MobileAccordion title="Vocational Jobs" items={vocationalJobs} icon={User} /> */}
 
                   {navLinks.map((link) => (
                     <Link
@@ -590,93 +626,83 @@ export default function Navbar() {
           <Logo />
         </div>
 
-        {/* Desktop Navigation */}
-        {/* <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="gap-1">
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Job Categories
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid w-[400px] text-2xl gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-white">
-                  {categories.map((category) => (
-                    <ListItem 
-                      key={category.title} 
-                      title={category.title} 
-                      href={"/search"}
-                      icon={category.icon}
-                    >
-                      {category.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Professional Jobs
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid gap-3 p-4 text-2xl md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
-                  {professionalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={"/search"} />
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent data-[state=open]:bg-[#00214D] data-[state=open]:text-white hover:bg-[#00214D] hover:text-white transition-all rounded-full text-[#00214D] font-bold text-base py-6 px-5">
-                Vocational Jobs
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-xl overflow-hidden shadow-lg">
-                <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[600px] lg:grid-cols-2 xl:w-[800px] xl:grid-cols-3 bg-white">
-                  {vocationalJobs.map((job) => (
-                    <ListItem key={job.title} title={job.title} href={"/search"} />
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-          <NavigationMenuViewport className="origin-top-center rounded-xl overflow-hidden shadow-lg" />
-        </NavigationMenu> */}
-
-        {/* Right Side Utility Links */}
         <div className="flex items-center gap-3">
           {/* Main Navigation Links */}
           <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
             {renderMainNavItems()}
           </nav>
+          <TooltipProvider>
+  <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
+    {navLinks.map((link) => (
+      <Tooltip key={link.title}>
+        <TooltipTrigger asChild>
+          <Link
+            href={link.href}
+            className={cn(
+              "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
+              pathname === link.href
+                ? "bg-[#00214D] text-white"
+                : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
+            )}
+          >
+            <link.icon
+              className={cn(
+                "h-6 w-6 opacity-70 transition-colors",
+                pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
+              )}
+            />
+            <span className="absolute inset-0 rounded-full" />
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+          <p>{link.title}</p>
+        </TooltipContent>
+      </Tooltip>
+    ))}
+  </nav>
+</TooltipProvider>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-4" aria-label="Utility navigation">
-            {navLinks.map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className={cn(
-                  "relative group px-4 py-3 rounded-full text-base font-bold transition-colors",
-                  pathname === link.href
-                    ? "bg-[#00214D] text-white"
-                    : "text-[#00214D] hover:text-white hover:bg-[#00214D]"
-                )}
-              >
-                <link.icon
-                  className={cn(
-                    "h-6 w-6 opacity-70 transition-colors",
-                    pathname === link.href ? "text-white" : "text-[#00214D] group-hover:text-white"
-                  )}
-                />
-                <span className="absolute inset-0 rounded-full" />
-              </Link>
-            ))}
-          </nav>
+   {/* User Menu */}
+<div className="flex items-center gap-2">
+  {authState.isAuthenticated && (
+    <>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <ChatNotifications 
+                socket={socket} 
+                currentUser={authState.user} 
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+            <p>Notifications</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
-          {/* User Menu */}
-          <div className="flex items-center gap-2">
-            {renderUserMenu()}
-          </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/indox"
+              className="relative group p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors"
+              aria-label="Chat"
+            >
+              <MessageCircle className="h-6 w-6" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-[#00214D] text-white">
+            <p>Messages</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </>
+  )}
+  {renderUserMenu()}
+</div>
+
         </div>
       </div>
     </header>

@@ -265,13 +265,6 @@ export default function ApplicationsPage() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleStartChat(applicant._id)}
-                        className="p-2 rounded-xl bg-[#003b8a] text-gray-400 hover:text-yellow-600 transition-colors"
-                        title="Start Chat"
-                      >
-                        <MessageSquare className="h-5 w-5" />
-                      </button>
-                      <button
                         onClick={() => handleShortlist(applicant._id, isShortlisted ? 'remove' : 'add')}
                         className={`p-2 rounded-xl transition-colors ${
                           isShortlisted

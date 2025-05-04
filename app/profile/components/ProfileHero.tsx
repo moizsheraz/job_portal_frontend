@@ -36,7 +36,7 @@ export default function ProfileHero({
 >
   <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-lg">
     <Image
-      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${user.profilePicture}`}
+      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${user.profilePicture}`}
       alt="Profile Picture"
       width={128}
       height={128}

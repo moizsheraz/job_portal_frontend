@@ -91,20 +91,22 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
     }
   };
 
-  const getPlanFeatures = (name: string): string[] => {
+  const getPlanFeatures = (planType: string): string[] => {
     const baseFeatures = [
       'Post job listings',
       'Access candidate database',
-      'Basic candidate filtering'
+      'Basic candidate filtering',
+      'Shortlist candidates',
+      'Chat with candidates',
     ];
     
-    switch (name) {
+    switch (planType) {
       case 'monthly':
-        return [...baseFeatures, 'Up to 5 active job postings', '100 candidate views/month'];
+        return [...baseFeatures, 'Unlimited job postings', ];
       case 'quarterly':
-        return [...baseFeatures, 'Up to 15 active job postings', 'Unlimited candidate views', 'Advanced search filters'];
+        return [...baseFeatures, 'Unlimited job postings',];
       case 'yearly':
-        return [...baseFeatures, 'Unlimited job postings', 'Priority listing placement', 'AI candidate matching', 'Dedicated account manager'];
+        return [...baseFeatures, 'Unlimited job postings'];
       default:
         return baseFeatures;
     }
@@ -218,7 +220,6 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
     }
   };
 
-
   // Check if user has an active subscription
   const hasActiveSubscription = user.subscription && new Date(user.subscription.endDate) > new Date();
 
@@ -245,13 +246,12 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
                 </div>
               </div>
             </div>
-     
           </div>
           
           <div className="mt-6 pt-6 border-t border-yellow-100">
             <h4 className="font-bold text-gray-700 mb-3">Subscription Benefits</h4>
             <ul className="space-y-2">
-              {getPlanFeatures(user.subscription.name).map((feature, index) => (
+              {getPlanFeatures(user.subscription.name || user.subscription.name).map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <svg className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -262,7 +262,6 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
             </ul>
           </div>
         </div>
- 
       </div>
     );
   }
@@ -290,74 +289,76 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 rounded-xl">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Recruiter Subscriptions</h2>
-      <p className="text-gray-600 mb-6">
-        Upgrade your recruiting capabilities with our premium subscription plans.
-      </p>
+    user.isFreelancer !== true && (
+      <div className="bg-white rounded-lg shadow p-6 rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Recruiter Subscriptions</h2>
+        <p className="text-gray-600 mb-6">
+          Upgrade your recruiting capabilities with our premium subscription plans.
+        </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {subscriptionPlans.map((plan) => (
-          <div key={plan._id} className={`border rounded-xl p-6 flex flex-col h-full transition-all duration-300 hover:shadow-lg
-            ${plan.planType === 'quarterly' ? 'border-yellow-500 shadow-md' : 'border-gray-200'}`}>
-            <div className={`text-center mb-4 pb-4 border-b ${plan.planType === 'quarterly' ? 'border-blue-200' : 'border-gray-100'}`}>
-              <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-              <p className="text-gray-500 font-bold text-sm mb-2">{plan.description}</p>
-              <p className="text-3xl font-bold text-gray-900">${plan.price}</p>
-              <p className="text-gray-500 font-bold text-sm">for {plan.duration}</p>
-              {plan.planType === 'quarterly' && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
-                  Recommended
-                </div>
-              )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {subscriptionPlans.map((plan) => (
+            <div key={plan._id} className={`border rounded-xl p-6 flex flex-col h-full transition-all duration-300 hover:shadow-lg
+              ${plan.planType === 'quarterly' ? 'border-yellow-500 shadow-md' : 'border-gray-200'}`}>
+              <div className={`text-center mb-4 pb-4 border-b ${plan.planType === 'quarterly' ? 'border-blue-200' : 'border-gray-100'}`}>
+                <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
+                <p className="text-gray-500 font-bold text-sm mb-2">{plan.description}</p>
+                <p className="text-3xl font-bold text-gray-900">${plan.price}</p>
+                <p className="text-gray-500 font-bold text-sm">for {plan.duration}</p>
+                {plan.planType === 'quarterly' && (
+                  <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
+                    Recommended
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-grow">
+                <ul className="space-y-2 mb-6">
+                  {plan.features?.map((feature, index) => (
+                    <li key={index} className="flex font-bold items-start">
+                      <svg className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-gray-600">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <button
+                onClick={() => handleSubscribeClick(plan)}
+                disabled={isLoading}
+                className={`w-full py-3 rounded-xl text-white font-medium transition-colors duration-300
+                  ${plan.planType === 'quarterly' 
+                    ? 'bg-yellow-600 text-white hover:opacity-80' 
+                    : 'bg-gray-700 hover:opacity-80'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isLoading ? 'Processing...' : 'Subscribe Now'}
+              </button>
             </div>
-            
-            <div className="flex-grow">
-              <ul className="space-y-2 mb-6">
-                {plan.features?.map((feature, index) => (
-                  <li key={index} className="flex font-bold items-start">
-                    <svg className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-gray-600">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <button
-              onClick={() => handleSubscribeClick(plan)}
-              disabled={isLoading}
-              className={`w-full py-3 rounded-xl text-white font-medium transition-colors duration-300
-                ${plan.planType === 'quarterly' 
-                  ? 'bg-yellow-600 text-white hover:opacity-80' 
-                  : 'bg-gray-700 hover:opacity-80'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isLoading ? 'Processing...' : 'Subscribe Now'}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {showPaymentModal && clientSecret && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800">Complete Your Subscription</h3>
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentForm 
-                clientSecret={clientSecret} 
-                planName={selectedPlan.name || selectedPlan.planType}
-                price={selectedPlan.price * 100}
-                planId={selectedPlan._id}
-                onSuccess={handlePaymentSuccess} 
-                onClose={() => setShowPaymentModal(false)} 
-              />
-            </Elements>
-          </div>
+          ))}
         </div>
-      )}
-    </div>
+
+        {showPaymentModal && clientSecret && selectedPlan && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+            <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
+              <h3 className="text-2xl font-bold mb-6 text-gray-800">Complete Your Subscription</h3>
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <PaymentForm 
+                  clientSecret={clientSecret} 
+                  planName={selectedPlan.name || selectedPlan.planType}
+                  price={selectedPlan.price * 100}
+                  planId={selectedPlan._id}
+                  onSuccess={handlePaymentSuccess} 
+                  onClose={() => setShowPaymentModal(false)} 
+                />
+              </Elements>
+            </div>
+          </div>
+        )}
+      </div>
+    )
   );
 }
 
@@ -453,7 +454,7 @@ const PaymentForm = ({
             className="px-5 py-2.5 bg-gradient-to-r bg-yellow-600 text-white rounded-xl hover:opacity-80 
                       transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isProcessing ? 'Processing...' : `Pay ₵${formattedPrice}`}
+            {isProcessing ? 'Processing...' : `Pay $${formattedPrice}`}
           </button>
         </div>
       </form>

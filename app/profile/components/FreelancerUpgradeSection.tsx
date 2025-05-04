@@ -99,6 +99,9 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
+  // Check if user has an active subscription
+  const hasActiveSubscription = user.subscription && new Date(user.subscription.endDate) > new Date();
+
   const handleUpgradeClick = async () => {
     try {
       toast.loading('Creating payment...', { id: 'payment' });
@@ -123,6 +126,7 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
     }
   };
 
+  // Show freelancer status if user is already a freelancer
   if (user.isFreelancer) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -136,6 +140,11 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
         </div>
       </div>
     );
+  }
+
+  // Don't show the upgrade section if user already has an active subscription
+  if (hasActiveSubscription) {
+    return null; // Return nothing if user has an active subscription
   }
 
   return (
