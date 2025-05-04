@@ -61,7 +61,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         <nav className="flex flex-wrap gap-3 mb-6">
           <NavLink href="/admin/subscription-management">Subscriptions</NavLink>
           <NavLink href="/admin/user-management">Users</NavLink>
-          <NavLink href="/admin/discount-code-management">Discount Codes</NavLink>
           <NavLink href="/admin/advertisement-management">Advertisements</NavLink>
           <NavLink href="/admin/trend-job-management">Trending Jobs</NavLink>
         </nav>

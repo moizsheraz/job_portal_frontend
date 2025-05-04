@@ -44,7 +44,7 @@ const ChatNotifications: React.FC<ChatNotificationsProps> = ({currentUser }) => 
       });
       console.log(socket);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [unreadCount, setUnreadCount] = useState<number>(4);
   const router = useRouter();
 
   useEffect(() => {
@@ -115,61 +115,62 @@ const ChatNotifications: React.FC<ChatNotificationsProps> = ({currentUser }) => 
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors" aria-label="Notifications">
-          <Bell className="h-6 w-6" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-5 flex items-center justify-center rounded-full px-1 border-2 border-white">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </Badge>
-          )}
+  <DropdownMenuTrigger asChild>
+    <Button variant="ghost" className="relative p-2 rounded-full text-[#00214D] hover:bg-[#00214D] hover:text-white transition-colors" aria-label="Notifications">
+      <Bell className="w-14 h-14" style={{ width: '1.5rem', height: '1.5rem' }} />  {/* Direct styling added */}
+      {unreadCount > 0 && (
+        <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-5 flex items-center justify-center rounded-full px-1 border-2 border-white">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </Badge>
+      )}
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="end" className="w-80 rounded-xl shadow-lg p-0">
+    <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-[#00214D] text-white rounded-t-xl">
+      <h3 className="font-bold">Notifications</h3>
+      {unreadCount > 0 && (
+        <Button variant="ghost" size="sm" className="text-xs text-blue-200 hover:text-white hover:bg-blue-600/20" onClick={markAllAsRead}>
+          Mark all as read
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 rounded-xl shadow-lg p-0">
-        <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-[#00214D] text-white rounded-t-xl">
-          <h3 className="font-bold">Notifications</h3>
-          {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" className="text-xs text-blue-200 hover:text-white hover:bg-blue-600/20" onClick={markAllAsRead}>
-              Mark all as read
-            </Button>
-          )}
-        </div>
-        
-        <ScrollArea className="max-h-[350px]">
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <DropdownMenuItem key={notification.id} className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`} onClick={() => handleNotificationClick(notification)}>
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={getProfilePicture(notification.sender)} />
-                    <AvatarFallback className="bg-blue-500 text-white">
-                      {getInitials(notification.sender)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-semibold text-sm text-gray-800">
-                        {notification.sender.name || 'Unknown User'}
-                      </h4>
-                      <span className="text-xs text-gray-500 whitespace-nowrap">
-                        {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 truncate mt-1">
-                      {notification.content}
-                    </p>
-                  </div>
+      )}
+    </div>
+    
+    <ScrollArea className="max-h-[350px]">
+      {notifications.length > 0 ? (
+        notifications.map((notification) => (
+          <DropdownMenuItem key={notification.id} className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`} onClick={() => handleNotificationClick(notification)}>
+            <div className="flex items-start gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={getProfilePicture(notification.sender)} />
+                <AvatarFallback className="bg-blue-500 text-white">
+                  {getInitials(notification.sender)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-semibold text-sm text-gray-800">
+                    {notification.sender.name || 'Unknown User'}
+                  </h4>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                    {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                  </span>
                 </div>
-              </DropdownMenuItem>
-            ))
-          ) : (
-            <div className="py-10 text-center text-gray-500">
-              <p>No new notifications</p>
+                <p className="text-xs text-gray-600 truncate mt-1">
+                  {notification.content}
+                </p>
+              </div>
             </div>
-          )}
-        </ScrollArea>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </DropdownMenuItem>
+        ))
+      ) : (
+        <div className="py-10 text-center text-gray-500">
+          <p>No new notifications</p>
+        </div>
+      )}
+    </ScrollArea>
+  </DropdownMenuContent>
+</DropdownMenu>
+
   );
 };
 

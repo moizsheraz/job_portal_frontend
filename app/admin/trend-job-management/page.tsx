@@ -243,7 +243,7 @@ export default function TrendingJobsManagement() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Title</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Company</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Salary Range</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Salary Range/month</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Location</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Created</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>

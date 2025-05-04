@@ -197,22 +197,29 @@ function JobPageContent(){
     fetchJobs();
   };
   
-    const clearFilters = (): void => {
-      setFilters({
-        search: "",
-        location: "",
-        category: "",
-        employmentType: "",
-        experience: "",
-        salaryMin: "",
-        salaryMax: "",
-        sort: "-createdAt",
-        region: "",
-        city: "",
-      });
-      setPagination((prev) => ({ ...prev, currentPage: 1 }));
-      fetchJobs();
+  const clearFilters = (): void => {
+    const newFilters = {
+      search: "",
+      location: "",
+      category: "",
+      employmentType: "",
+      experience: "",
+      salaryMin: "",
+      salaryMax: "",
+      sort: "-createdAt",
+      region: "",
+      city: "",
     };
+    
+    setFilters(newFilters);
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    
+    // Update URL
+    router.push(`?sort=-createdAt`);
+    
+    // Fetch jobs
+    fetchJobs(newFilters);
+  };
   
     const changePage = (newPage: number): void => {
       if (newPage > 0 && newPage <= pagination.totalPages) {
@@ -490,15 +497,23 @@ function JobPageContent(){
                             : key === "salaryMax"
                             ? `Max $${value}`
                             : value}
-                          <X
-                            size={14}
-                            className="ml-1 cursor-pointer"
-                            onClick={() => {
-                              setFilters((prev) => ({ ...prev, [key]: "" }));
-                              setPagination((prev) => ({ ...prev, currentPage: 1 }));
-                              fetchJobs();
-                            }}
-                          />
+                       <X
+  size={14}
+  className="ml-1 cursor-pointer"
+  onClick={() => {
+    const newFilters = { ...filters, [key]: "" };
+    setFilters(newFilters);
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    
+    const queryParams = new URLSearchParams();
+    Object.entries(newFilters).forEach(([filterKey, filterValue]) => {
+      if (filterValue) queryParams.set(filterKey, filterValue);
+    });
+    router.push(`?${queryParams.toString()}`);
+    
+    fetchJobs(newFilters);
+  }}
+/>
                         </span>
                       )
                   )}

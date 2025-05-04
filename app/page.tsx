@@ -45,10 +45,7 @@ export default function LandingPage() {
     router.push(`/search?category=${encodeURIComponent(category)}`);
   };
   function getDisplayJobsCount(count: number) {
-    if (count === 0) return "0";
-    const multiplier = 10; // ya 10 bhi kar sakte ho
-    const rounded = Math.floor((count + (multiplier - 1)) / multiplier) * multiplier;
-    return `${rounded}+`;
+    return count - (count % 10);
   }
   const [featuredJobs, setfeaturedJobs] = useState<any[]>([]);
   useEffect(() => {
@@ -87,7 +84,7 @@ export default function LandingPage() {
               <div className="space-y-6">
                 {/* Improved badge visibility with darker text */}
                 <div className="inline-flex text-white items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 font-bold text-red-500">
-                  <Zap size={16} className="mr-1" /> {getDisplayJobsCount(stats?.totalJobsPosted ?? 0)} Jobs Available Now
+                  <Zap size={16} className="mr-1" /> {getDisplayJobsCount(stats?.totalJobsPosted ?? 0)}+ Jobs Available Now
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Your Career <span className="text-yellow-400">Evolution</span> Starts Here
@@ -196,7 +193,7 @@ export default function LandingPage() {
         </div>
         <div className="text-right">
           <p className="font-medium text-[#00214D]">
-          ₵{job.salaryMin} - ₵{job.salaryMax}
+          ₵{job.salaryMin} - ₵{job.salaryMax} / month
           </p>
           <div className="flex items-center text-xs text-gray-500">
             <MapPin size={12} className="mr-1" />
@@ -441,7 +438,7 @@ export default function LandingPage() {
                   Ready to Accelerate Your Career?
                 </h2>
                 <p className="text-xl text-white text-opacity-90 mb-8">
-                  Join over 10 million professionals who have already found their dream jobs through our platform.
+                  Join the numerous professionals who have already found their dream jobs through our platform.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
@@ -452,7 +449,7 @@ export default function LandingPage() {
                   </Link>
                 </div>
                 <p className="text-white text-opacity-80 mt-6 text-sm">
-                  Free to join • No credit card required • Cancel anytime
+                  Free to join • No payment required to signup
                 </p>
               </div>
             </div>

@@ -1,8 +1,13 @@
 "use client"
 
-import { Briefcase, Globe, Award, HeartHandshake, User, Star, CreditCard } from "lucide-react"
+import {
+  Briefcase,
+  User,
+  Star,
+  CreditCard,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Building2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
@@ -31,62 +36,59 @@ export default function AboutPage() {
   ]
 
   return (
- <>
- 
- <Navbar/>
- <div className="min-h-screen bg-gradient-to-b from-[#00214D] to-white pt-12 pb-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-20">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">About ALL JOBS</h1>
-          <p className="text-xl font-bold text-yellow-300 max-w-3xl mx-auto">
-            Product of Brightway Group of Companies Global
-          </p>
-        </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-[#00214D] to-white pt-16 pb-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-24">
+          {/* Hero Section */}
+          <section className="text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">About ALL JOBS</h1>
+            <p className="text-xl font-semibold text-yellow-300 max-w-2xl mx-auto">
+              Product of Brightway Group of Companies Global
+            </p>
+          </section>
 
-        {/* Our Story */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-20">
-          <h2 className="text-3xl font-bold text-[#00214D] mb-6 text-center">Our Story</h2>
-          <div className="flex items-center">
-            <div>
-              <p className="text-gray-700 mb-4">
-                ALL JOBS, a product of Brightway Group of Companies Global, was founded with a vision to revolutionize 
-                the job market by creating a unified platform for all types of employment opportunities.
-              </p>
-              <p className="text-gray-700 mb-4">
-                Unlike traditional job platforms that focus on specific sectors, we bridge the gap between white-collar 
-                professionals, vocational workers, and freelancers, providing equal opportunities for all.
-              </p>
-              <p className="text-gray-700 mb-6">
-                As part of the Brightway Group, we leverage global expertise to deliver innovative hiring solutions 
-                that benefit both job seekers and employers worldwide.
-              </p>
-              <Button className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-6 text-lg rounded-full">
+          {/* Our Story */}
+          <section className="bg-white rounded-2xl shadow-2xl p-10 space-y-6">
+            <h2 className="text-3xl font-bold text-[#00214D] text-center">Our Story</h2>
+            <p className="text-gray-700 leading-relaxed text-justify">
+              Founded to transform the job market in Ghana and Africa, ALLJOBSGH provides a unique all-in-one platform for various employment opportunities. Unlike conventional job platforms that cater to specific sectors, ALLJOBSGH connects professionals, vocational workers, and freelancers, ensuring equal access for everyone.
+              <br /><br />
+              The platform utilizes advanced AI tools to streamline job postings, simplify applications, and enable secure communication between employers, job seekers, freelancers, and clients. It also features a resume builder with various templates to help candidates stand out.
+              <br /><br />
+              Furthermore, ALLJOBSGH delivers recruiting and staffing services to assist major companies and organizations in their hiring efforts across Ghana and Africa. As part of the Brightway Group, we leverage global expertise to deliver innovative hiring solutions.
+            </p>
+            <div className="text-center">
+              <Button
+                onClick={() => window.open("http://www.brightwaygroup.org", "_blank")}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-full"
+              >
                 Learn More About Brightway
               </Button>
             </div>
-          </div>
-        </div>
+          </section>
 
-        {/* Features */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Key Features</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-shadow">
-                <div className="bg-yellow-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                  <feature.icon className="h-6 w-6 text-yellow-600" />
+          {/* Features */}
+          <section>
+            <h2 className="text-3xl font-bold text-white text-center mb-10">Our Key Features</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition duration-300 transform hover:-translate-y-1"
+                >
+                  <div className="bg-yellow-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                    <feature.icon className="h-6 w-6 text-yellow-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#00214D] mb-2">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
                 </div>
-                <h3 className="text-xl font-bold text-[#00214D] mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
         </div>
-  
       </div>
-    </div>
- <Footer/>
- </>
+      <Footer />
+    </>
   )
 }

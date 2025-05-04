@@ -19,7 +19,7 @@ export default function ContactPage() {
     const formData = new FormData(e.target);
 
     try {
-      const response = await fetch("https://formspree.io/f/mjkynlrd", {
+      const response = await fetch("https://formspree.io/f/xyzerqdy", {
         method: "POST",
         body: formData,
         headers: {
@@ -152,20 +152,10 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-[#00214D]">Email Us</h3>
-                      <p className="text-gray-600">brightwaygh@alljobsgh.com</p>
+                      <p className="text-gray-600">info@alljobsgh.com</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="bg-yellow-100 p-3 rounded-full">
-                      <Phone className="h-6 w-6 text-yellow-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-[#00214D]">Call Us</h3>
-                      <p className="text-gray-600">+233 55 199 2919</p>
-                      <p className="text-gray-600">Mon-Fri: 9am - 5pm</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

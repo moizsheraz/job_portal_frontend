@@ -292,11 +292,17 @@ export default function PostJobPage() {
   // Handle company form changes
   const handleCompanyInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+  
+    const newValue = name === "logo"
+      ? "https://unsplash-assets.imgix.net/marketing/press-header.jpg?auto=format&fit=crop&q=60"
+      : value;
+  
     setCompanyData(prev => ({
       ...prev,
-      [name]: value
+      [name]: newValue
     }));
   };
+  
 
   const handleCompanyTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -441,14 +447,14 @@ export default function PostJobPage() {
                           value={companyData.location}
                           onChange={handleCompanyInputChange}
                           className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-yellow-900 focus:border-transparent transition-all shadow-sm"
-                          placeholder="e.g. New York, USA"
+                          placeholder="e.g. Bono East, Ghana"
                           required
                         />
                       </div>
 
                       <div>
                         <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-2">
-                          Company Logo URL
+                          Company Logo URL {"(optional)"}
                         </label>
                         <input
                           type="url"
@@ -463,7 +469,7 @@ export default function PostJobPage() {
 
                       <div>
                         <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
-                          Company Website
+                          Company Website {"(optional)"}
                         </label>
                           <input
                           type="url"
