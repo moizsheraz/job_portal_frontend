@@ -94,11 +94,9 @@ export const userService = {
   }
   },
 
-  // handle freelancer payment success
-  async handleFreelancerPaymentSuccess(paymentIntentId: string) {
+  async handleFreelancerPaymentSuccess() {
     try {
       const response = await axios.post(`${API_URL}/api/v1/user/freelancer-payment-success`, {
-        paymentIntentId
       }, {
         withCredentials: true
       });
@@ -108,11 +106,9 @@ export const userService = {
     } 
   },
   
-  // handle subscription payment success
-  async handleSubscriptionPaymentSuccess(paymentIntentId: string, planId: string) {
+  async handleSubscriptionPaymentSuccess(planId: string) {
     try {
       const response = await axios.post(`${API_URL}/api/v1/user/buy-subscription`, {
-        paymentIntentId,
         subscriptionId:planId
       }, {
         withCredentials: true

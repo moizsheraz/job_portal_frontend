@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
 import { createPaymentIntent, handlePaymentSuccess,createJob } from '@/app/services/JobService'
 import { userService } from "../services/userService"
-import { PaymentForm } from "@/components/PaymentForm"
 import axios from 'axios'
 import { UserData } from "../profile/types"
 
@@ -241,17 +240,11 @@ export default function PostJobPage() {
       router.push('/');
    }else{
     try {
-      // Create payment intent first
       const amount = 50;
-      const paymentResponse = await createPaymentIntent(amount);
-      
-      setPaymentData({
-        clientSecret: paymentResponse.clientSecret,
-        paymentIntentId: paymentResponse.paymentIntentId,
-        amount: amount
-      });
-      setShowPaymentForm(true);
-      toast.success('Please complete the payment');
+      localStorage.setItem('jobData', JSON.stringify(formData));
+      localStorage.setItem('companyData', JSON.stringify(companyData));
+      localStorage.setItem('amount', JSON.stringify(amount));
+      router.push('/payment-redirect?purpose=job-post');
     } catch (error: any) {
       toast.error(error.message || 'Failed to process job posting');
     } finally {
@@ -261,40 +254,14 @@ export default function PostJobPage() {
   
   };
 
-  const handlePaymentFormSuccess = async () => {
-    try {
-      if (!paymentData) return;
-      const jobData = {
-        ...formData,
-        title: formData.jobTitle,
-        location: `${formData.region}, ${formData.city}`
-      };
-
-      // Only send companyData if user doesn't have an existing company
-      const result = await handlePaymentSuccess(
-        jobData, 
-        paymentData.paymentIntentId, 
-        hasExistingCompany ? undefined : companyData
-      );
-      
-      toast.success('Job posted successfully! Redirecting to homepage...');
-      router.push('/');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to complete job posting');
-    }
-  };
-
-  const handlePaymentFormCancel = () => {
-    setShowPaymentForm(false);
-    setPaymentData(null);
-  };
-
   // Handle company form changes
   const handleCompanyInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
   
-    const newValue = name === "logo"
-      ? "https://unsplash-assets.imgix.net/marketing/press-header.jpg?auto=format&fit=crop&q=60"
+    const newValue = name === "logo" 
+      ? value.trim() === "" 
+        ? "https://unsplash-assets.imgix.net/marketing/press-header.jpg?auto=format&fit=crop&q=60"
+        : value
       : value;
   
     setCompanyData(prev => ({
@@ -377,17 +344,7 @@ export default function PostJobPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8 sm:mb-10 text-center font-sans">
             Post a New Job
           </h1>
-
-          {showPaymentForm && paymentData ? (
-            <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl shadow-xl p-5 sm:p-8 border border-gray-100">
-              <PaymentForm 
-                amount={paymentData.amount}
-                jobData={formData}
-                onSuccess={handlePaymentFormSuccess}
-                onCancel={handlePaymentFormCancel}
-              />
-            </div>
-          ) : (
+         
             <form onSubmit={handleSubmit} className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl shadow-xl p-5 sm:p-8 border border-gray-100">
               <div className="space-y-8">
                 {/* Company Details Section */}
@@ -454,16 +411,22 @@ export default function PostJobPage() {
 
                       <div>
                         <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-2">
-                          Company Logo URL {"(optional)"}
+                          Company Logo URL (optional)
                         </label>
                         <input
                           type="url"
                           id="logo"
                           name="logo"
-                          value={companyData.logo}
+                          value={companyData.logo === "https://unsplash-assets.imgix.net/marketing/press-header.jpg?auto=format&fit=crop&q=60" ? "" : companyData.logo}
                           onChange={handleCompanyInputChange}
                           className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-yellow-900 focus:border-transparent transition-all shadow-sm"
-                          placeholder="https://example.com/logo.png"
+                          placeholder="Leave empty for default placeholder"
+                        />
+                        {/* Hidden input to store the actual value */}
+                        <input
+                          type="hidden"
+                          name="actualLogo"
+                          value={companyData.logo}
                         />
                       </div>
 
@@ -479,7 +442,6 @@ export default function PostJobPage() {
                           onChange={handleCompanyInputChange}
                           className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-yellow-900 focus:border-transparent transition-all shadow-sm"
                           placeholder="https://example.com"
-                          required
                         />
                       </div>
 
@@ -820,7 +782,7 @@ export default function PostJobPage() {
 </button>
               </div>
             </form>
-          )}
+          
         </div>
       </main>
 
