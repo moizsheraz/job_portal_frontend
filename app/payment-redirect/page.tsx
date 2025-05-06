@@ -6,7 +6,6 @@ import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { createJob } from '../services/JobService';
 import { userService } from '../services/userService';
-import { PathParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 
 export default function PaymentPage() {
   return (
@@ -101,10 +100,14 @@ function PaymentContent() {
             setMessage('⚠️ Payment succeeded but subscription plan ID is missing.');
           }
   
+        }else if(purpose === 'freelance'){
+          const response = await userService.handleFreelancerPaymentSuccess();
+          if (response.success) {
+            setMessage('✅ Payment Successful & Freelancer Status Activated!');
+          }
         } else {
           setMessage('✅ Payment Verified!');
         }
-  
       } else {
         setMessage('❌ Payment Failed or Cancelled');
       }

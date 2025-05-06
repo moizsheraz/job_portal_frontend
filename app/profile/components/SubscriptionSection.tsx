@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { UserData } from '../types';
-import { userService } from '../../services/userService';
+import { useRouter } from 'next/navigation';
 
 interface SubscriptionPlan {
   _id: string;
@@ -32,6 +31,7 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
@@ -197,26 +197,10 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
 
   const handleSubscribeClick = async (plan: SubscriptionPlan) => {
     try {
-      toast.loading('Creating payment...', { id: 'payment' });
-      const { paymentIntentId, clientSecret } = await userService.createPaymentIntent(plan.price);
-      setClientSecret(clientSecret);
-      setSelectedPlan(plan);
-      setShowPaymentModal(true);
-      toast.success('Payment created successfully!', { id: 'payment' });
+      localStorage.setItem('planId', JSON.stringify(plan._id));
+      router.push("/payment-redirect?purpose=subscription");
     } catch (error: any) {
       toast.error(error.message || 'Failed to create payment.');
-    }
-  };
-
-  const handlePaymentSuccess = async () => {
-    try {
-      await onSubscribe();
-      setShowPaymentModal(false);
-      toast.success(`Congratulations! You've subscribed to the ${selectedPlan?.name} plan!`, {
-        duration: 5000,
-      });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to complete subscription.');
     }
   };
 
@@ -339,125 +323,8 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
             </div>
           ))}
         </div>
-
-        {showPaymentModal && clientSecret && selectedPlan && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
-              <h3 className="text-2xl font-bold mb-6 text-gray-800">Complete Your Subscription</h3>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <PaymentForm 
-                  clientSecret={clientSecret} 
-                  planName={selectedPlan.name || selectedPlan.planType}
-                  price={selectedPlan.price * 100}
-                  planId={selectedPlan._id}
-                  onSuccess={handlePaymentSuccess} 
-                  onClose={() => setShowPaymentModal(false)} 
-                />
-              </Elements>
-            </div>
-          </div>
-        )}
       </div>
     )
   );
 }
 
-const PaymentForm = ({
-  clientSecret,
-  planName,
-  price,
-  planId,
-  onSuccess,
-  onClose,
-}: {
-  clientSecret: string;
-  planName: string;
-  price: number;
-  planId: string;
-  onSuccess: () => void;
-  onClose: () => void;
-}) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const formattedPrice = (price / 100).toFixed(2);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    if (!stripe || !elements) {
-      toast.error('Stripe has not been initialized.');
-      return;
-    }
-  
-    setIsProcessing(true);
-    toast.loading('Processing payment...', { id: 'payment' });
-  
-    try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        toast.error(submitError.message || 'Payment details are invalid.');
-        return;
-      }
-  
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        clientSecret,
-        confirmParams: {
-          return_url: `${window.location.origin}/success`,
-        },
-        redirect: 'if_required',
-      });
-  
-      if (error) {
-        toast.error(error.message || 'Payment failed.');
-        return;
-      }
-  
-      if (paymentIntent.status === 'succeeded') {
-        toast.success('Payment succeeded!');
-        await userService.handleSubscriptionPaymentSuccess(paymentIntent.id, planId);
-        onSuccess();
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Payment failed.');
-    } finally {
-      setIsProcessing(false);
-      toast.dismiss('payment');
-    }
-  };
-
-  return (
-    <div className="flex flex-col h-full">
-      <form onSubmit={handleSubmit} className="flex flex-col h-full">
-        <div className="flex-grow overflow-y-auto pr-2 max-h-[60vh]">
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-xl font-bold text-yellow-500 mb-2">Subscription Summary</h3>
-            <p className="text-yellow-600">Plan: <span className="font-bold">{planName}</span></p>
-            <p className="text-yellow-600">Price: <span className="font-bold">${formattedPrice}</span></p>
-          </div>
-          
-          <PaymentElement />
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 mt-8 pt-4 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 text-gray-600 hover:text-gray-800 rounded-xl hover:bg-gray-100 transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="px-5 py-2.5 bg-gradient-to-r bg-yellow-600 text-white rounded-xl hover:opacity-80 
-                      transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? 'Processing...' : `Pay $${formattedPrice}`}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};

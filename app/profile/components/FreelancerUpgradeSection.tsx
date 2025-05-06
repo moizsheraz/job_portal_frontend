@@ -1,132 +1,28 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { UserData } from '../types';
 import { userService } from '../../services/userService';
-
+import { useRouter } from 'next/navigation';
 interface FreelancerUpgradeSectionProps {
   user: UserData;
   isLoading: boolean;
   onUpgrade: () => Promise<void>;
 }
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-const PaymentForm = ({
-  clientSecret,
-  onSuccess,
-  onClose,
-}: {
-  clientSecret: string;
-  onSuccess: () => void;
-  onClose: () => void;
-}) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    if (!stripe || !elements) {
-      toast.error('Stripe has not been initialized.');
-      return;
-    }
-  
-    setIsProcessing(true);
-    toast.loading('Processing payment...', { id: 'payment' });
-  
-    try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        toast.error(submitError.message || 'Payment details are invalid.');
-        return;
-      }
-  
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        clientSecret,
-        confirmParams: {
-          return_url: `${window.location.origin}/success`,
-        },
-        redirect: 'if_required',
-      });
-  
-      if (error) {
-        toast.error(error.message || 'Payment failed.');
-        return;
-      }
-  
-      if (paymentIntent.status === 'succeeded') {
-        toast.success('Payment succeeded!');
-        await userService.handleFreelancerPaymentSuccess(paymentIntent.id);
-        onSuccess();
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Payment failed.');
-    } finally {
-      setIsProcessing(false);
-      toast.dismiss('payment');
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
-      <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-5 py-2.5 text-gray-600 hover:text-gray-800 rounded-xl hover:bg-gray-100 transition-colors duration-200"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={!stripe || isProcessing}
-          className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 
-                     transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isProcessing ? 'Processing...' : 'Pay ₵29.99'}
-        </button>
-      </div>
-    </form>
-  );
-};
 
 export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }: FreelancerUpgradeSectionProps) {
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  // Check if user has an active subscription
   const hasActiveSubscription = user.subscription && new Date(user.subscription.endDate) > new Date();
-
+const router = useRouter();
   const handleUpgradeClick = async () => {
     try {
-      toast.loading('Creating payment...', { id: 'payment' });
-      const { paymentIntentId, clientSecret } = await userService.createPaymentIntent(2999);
-      setClientSecret(clientSecret);
-      setShowPaymentModal(true);
-      toast.success('Payment created successfully!', { id: 'payment' });
+    router.push('/payment-redirect?purpose=freelance');      
     } catch (error: any) {
       toast.error(error.message || 'Failed to create payment.');
     }
   };
 
-  const handlePaymentSuccess = async () => {
-    try {
-      await onUpgrade();
-      setShowPaymentModal(false);
-      toast.success('Congratulations! You are now a freelancer!', {
-        duration: 5000,
-      });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to upgrade status.');
-    }
-  };
-
-  // Show freelancer status if user is already a freelancer
   if (user.isFreelancer) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -178,17 +74,7 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
           </button>
         </div>
       </div>
-
-      {showPaymentModal && clientSecret && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800">Payment Details</h3>
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentForm clientSecret={clientSecret} onSuccess={handlePaymentSuccess} onClose={() => setShowPaymentModal(false)} />
-            </Elements>
-          </div>
-        </div>
-      )}
+    
     </div>
   );
 }
