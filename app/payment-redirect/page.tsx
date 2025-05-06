@@ -74,7 +74,7 @@ function PaymentContent() {
         if (purpose?.startsWith('job-post')) {
           setMessage('⏳ Payment successful! Posting job...');
   
-          const jobDataRaw = localStorage.getItem('jobData');
+          const jobDataRaw = localStorage.getItem('formData');
           const companyDataRaw = localStorage.getItem('companyData');
   
           if (jobDataRaw && companyDataRaw) {
@@ -87,7 +87,7 @@ function PaymentContent() {
               : '⚠️ Payment Successful but Job Posting Failed.');
   
             // Clear storage
-            localStorage.removeItem('jobData');
+            localStorage.removeItem('formData');
             localStorage.removeItem('companyData');
           } else {
             setMessage('⚠️ Payment succeeded but job/company data is missing.');
@@ -112,19 +112,19 @@ function PaymentContent() {
           }
   
         } else if (purpose?.startsWith('BuySubscriptionAndPostJob')) {
-          const jobData = JSON.parse(localStorage.getItem('jobData') || '{}');
+          const jobData = JSON.parse(localStorage.getItem('formData') || '{}');
           const companyData = JSON.parse(localStorage.getItem('companyData') || '{}');
-          const planId = localStorage.getItem('planId');
+          const planId = localStorage.getItem('planId'); 
   
-          const jobPostResponse = await createJob(jobData, companyData);
           const subscriptionResponse = await userService.handleSubscriptionPaymentSuccess(planId);
+          const jobPostResponse = await createJob(jobData, companyData);
   
           if (subscriptionResponse.success && jobPostResponse?.success) {
             setMessage('✅ Subscription Added & Job Posted!');
           }
   
           // Clear all related data
-          localStorage.removeItem('jobData');
+          localStorage.removeItem('formData');
           localStorage.removeItem('companyData');
           localStorage.removeItem('planId');
   

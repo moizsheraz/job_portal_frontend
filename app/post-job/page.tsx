@@ -363,7 +363,6 @@ const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([
     // Proceed with one-time payment logic
     localStorage.setItem('formData', JSON.stringify(formData))
     localStorage.setItem('companyData', JSON.stringify(companyData))
-    localStorage.setItem('hasExistingCompany', JSON.stringify(hasExistingCompany))
     localStorage.setItem('amount', '50')
     router.push('/payment-redirect?purpose=job-post')
   }
@@ -372,6 +371,8 @@ const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([
     setShowPaymentOptions(false)
     // Redirect to subscription payment
     localStorage.setItem('planId', plan._id)
+    localStorage.setItem('formData', JSON.stringify(formData))
+    localStorage.setItem('companyData', JSON.stringify(companyData))
     router.push(`/payment-redirect?purpose=BuySubscriptionAndPostJob`)
   }
   
@@ -401,6 +402,8 @@ const handleSubmit = async (e: FormEvent) => {
       router.push('/')
     } else {
       // No subscription - show payment options
+      localStorage.setItem('jobData', JSON.stringify(formData))
+      localStorage.setItem('companyData', JSON.stringify(companyData))
       setShowPaymentOptions(true)
     }
   } catch (error: any) {
