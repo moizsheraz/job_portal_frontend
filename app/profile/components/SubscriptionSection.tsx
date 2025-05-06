@@ -197,7 +197,7 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
 
   const handleSubscribeClick = async (plan: SubscriptionPlan) => {
     try {
-      localStorage.setItem('planId', JSON.stringify(plan._id));
+      localStorage.setItem('planId', plan._id);
       router.push("/payment-redirect?purpose=subscription");
     } catch (error: any) {
       toast.error(error.message || 'Failed to create payment.');

@@ -59,39 +59,35 @@ const NotificationsDropdown = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const currentUser = await userService.getCurrentUser();
-        console.log(currentUser.role);
-        setCurrentUser(currentUser);
-
-        } catch (error) {
-          console.error("Error fetching current user:", error);
-        }
-      };
-    
-      fetchCurrentUser();
-    }, []);
-
-
-  // Fetch initial notifications
+        const user = await userService.getCurrentUser();
+        setCurrentUser(user);
+      } catch (err) {
+        console.error("Error fetching current user", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+  
   useEffect(() => {
     const fetchNotifications = async () => {
+      if (!currentUser) return;
+  
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/notifications?userId=${currentUser?._id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/notifications?userId=${currentUser._id}`);
         const data = await response.json();
-        
         if (data.success) {
           setNotifications(data.notifications);
           setUnreadCount(data.unreadCount);
         }
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+      } catch (err) {
+        console.error("Error fetching notifications", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchNotifications();
-  }, [currentUser?._id]);
+  }, [currentUser]);
+  
 
   // Socket connection handlers
   useEffect(() => {

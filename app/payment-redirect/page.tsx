@@ -85,26 +85,49 @@ function PaymentContent() {
             setMessage(jobPostResponse?.success
               ? '✅ Payment Successful & Job Posted!'
               : '⚠️ Payment Successful but Job Posting Failed.');
+  
+            // Clear storage
+            localStorage.removeItem('jobData');
+            localStorage.removeItem('companyData');
           } else {
             setMessage('⚠️ Payment succeeded but job/company data is missing.');
           }
   
-        } else if (purpose === 'subscription') {
+        } else if (purpose?.startsWith('subscription')) {
           setMessage('⏳ Payment successful! Activating subscription...');
   
           const planId = localStorage.getItem('planId');
           if (planId) {
             await userService.handleSubscriptionPaymentSuccess(planId);
             setMessage('✅ Subscription Activated!');
+            localStorage.removeItem('planId');
           } else {
             setMessage('⚠️ Payment succeeded but subscription plan ID is missing.');
           }
   
-        }else if(purpose === 'freelance'){
+        } else if (purpose?.startsWith('freelance')) {
           const response = await userService.handleFreelancerPaymentSuccess();
           if (response.success) {
             setMessage('✅ Payment Successful & Freelancer Status Activated!');
           }
+  
+        } else if (purpose?.startsWith('BuySubscriptionAndPostJob')) {
+          const jobData = JSON.parse(localStorage.getItem('jobData') || '{}');
+          const companyData = JSON.parse(localStorage.getItem('companyData') || '{}');
+          const planId = localStorage.getItem('planId');
+  
+          const jobPostResponse = await createJob(jobData, companyData);
+          const subscriptionResponse = await userService.handleSubscriptionPaymentSuccess(planId);
+  
+          if (subscriptionResponse.success && jobPostResponse?.success) {
+            setMessage('✅ Subscription Added & Job Posted!');
+          }
+  
+          // Clear all related data
+          localStorage.removeItem('jobData');
+          localStorage.removeItem('companyData');
+          localStorage.removeItem('planId');
+  
         } else {
           setMessage('✅ Payment Verified!');
         }
@@ -121,6 +144,7 @@ function PaymentContent() {
       setLoading(false);
     }
   };
+  
   
   const purpose = searchParams?.get('purpose');
     if (!purpose) {
@@ -191,7 +215,7 @@ function PaymentContent() {
                     setMode('form');
                     router.replace('/');
                   }}
-                  className="mt-6 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium"
+                  className="mt-6 px-6 rounded-xl py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium"
                 >
                   Back to Home
                 </button>

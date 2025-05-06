@@ -6,10 +6,11 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
-import { createPaymentIntent, handlePaymentSuccess,createJob } from '@/app/services/JobService'
+import {createJob } from '@/app/services/JobService'
 import { userService } from "../services/userService"
 import axios from 'axios'
 import { UserData } from "../profile/types"
+import PaymentOptionsModal from "@/components/PaymentOptions"
 
 // Type definitions
 type JobType = "Onsite" | "Remote" | "Hybrid"
@@ -29,6 +30,18 @@ interface CompanyData {
   logo?: string
   website: string
   description: string
+}
+interface SubscriptionPlan {
+  _id: string;
+  planType: string;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  name?: string;
+  description?: string;
+  features?: string[];
+  duration?: string;
 }
 
 interface FormData {
@@ -90,6 +103,8 @@ export default function PostJobPage() {
     tags: '',
     skills: ''
   });
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false)
+const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([])
   const [paymentData, setPaymentData] = useState<{
     clientSecret: string;
     paymentIntentId: string;
@@ -186,6 +201,7 @@ export default function PostJobPage() {
         : [...prev.jobTypes, type]
     }))
   }
+  
 
   // Handle tag-like inputs
   const handleTagInput = (field: keyof Pick<FormData, 'tags' | 'skills'>, e: KeyboardEvent<HTMLInputElement>) => {
@@ -224,35 +240,7 @@ export default function PostJobPage() {
  
 
   // Form submission
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    console.log(user);
-   if(user?.subscription && user?.subscription.startDate && user?.subscription.endDate && new Date(user?.subscription.endDate) > new Date()) {
-    const jobData = {
-      ...formData,
-      title: formData.jobTitle,
-      location: `${formData.region}, ${formData.city}`
-    };
-    await createJob( jobData, 
-      hasExistingCompany ? undefined : companyData);
-      toast.success('Job posted successfully! Redirecting to homepage...');
-      router.push('/');
-   }else{
-    try {
-      const amount = 50;
-      localStorage.setItem('jobData', JSON.stringify(formData));
-      localStorage.setItem('companyData', JSON.stringify(companyData));
-      localStorage.setItem('amount', JSON.stringify(amount));
-      router.push('/payment-redirect?purpose=job-post');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to process job posting');
-    } finally {
-      setIsLoading(false);
-    }
-   }
-  
-  };
+ 
 
   // Handle company form changes
   const handleCompanyInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -269,6 +257,158 @@ export default function PostJobPage() {
       [name]: newValue
     }));
   };
+  useEffect(() => {
+    const fetchSubscriptionPlans = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/get-all-sub`)
+        const data = await response.json()
+        
+        if (data.success) {
+          const mappedPlans = data.data.map((plan: SubscriptionPlan) => ({
+            ...plan,
+            name: getPlanName(plan.planType),
+            description: getPlanDescription(plan.planType),
+            features: getPlanFeatures(plan.planType),
+            duration: getPlanDuration(plan.planType)
+          }))
+          setSubscriptionPlans(mappedPlans)
+        } else {
+          throw new Error('Failed to fetch subscription plans')
+        }
+      } catch (error) {
+        console.error('Error fetching subscription plans:', error)
+        // Fallback to default plans if API fails
+        setSubscriptionPlans([
+          {
+            _id: 'default-monthly',
+            planType: 'monthly',
+            price: 150,
+            name: 'Monthly Subscription',
+            description: 'Post unlimited jobs for a month',
+            features: ['Unlimited job postings', 'Premium job visibility', 'Candidate management'],
+            duration: '30 days',
+            createdAt: "",
+            updatedAt: "",
+            __v: 0
+          },
+          {
+            _id: 'default-quarterly',
+            planType: 'quarterly',
+            price: 400,
+            name: 'Quarterly Subscription',
+            description: 'Post unlimited jobs for 3 months',
+            features: ['Unlimited job postings', 'Premium job visibility', 'Candidate management', 'Analytics dashboard'],
+            duration: '90 days',
+            createdAt: "",
+            updatedAt: "",
+            __v: 0
+          },
+          {
+            _id: 'default-yearly',
+            planType: 'yearly',
+            price: 1200,
+            name: 'Yearly Subscription',
+            description: 'Post unlimited jobs for a year',
+            features: ['Unlimited job postings', 'Premium job visibility', 'Candidate management', 'Analytics dashboard', 'Priority support'],
+            duration: '365 days',
+            createdAt: "",
+            updatedAt: "",
+            __v: 0
+          }
+        ])
+      }
+    }
+  
+    fetchSubscriptionPlans()
+  }, [])
+  const getPlanName = (planType: string): string => {
+    switch (planType) {
+      case 'monthly': return 'Monthly Subscription'
+      case 'quarterly': return 'Quarterly Subscription'
+      case 'yearly': return 'Yearly Subscription'
+      default: return 'Subscription Plan'
+    }
+  }
+  
+  const getPlanDescription = (planType: string): string => {
+    switch (planType) {
+      case 'monthly': return 'Post unlimited jobs for a month'
+      case 'quarterly': return 'Post unlimited jobs for 3 months'
+      case 'yearly': return 'Post unlimited jobs for a year'
+      default: return 'Premium subscription plan'
+    }
+  }
+  
+  const getPlanFeatures = (planType: string): string[] => {
+    const baseFeatures = ['Unlimited job postings', 'Candidate management']
+    switch (planType) {
+      case 'monthly': return [...baseFeatures, 'Basic analytics']
+      case 'quarterly': return [...baseFeatures, 'Advanced analytics', 'Priority support']
+      case 'yearly': return [...baseFeatures, 'Advanced analytics', 'Priority support', 'Featured job slots']
+      default: return baseFeatures
+    }
+  }
+  
+  const getPlanDuration = (planType: string): string => {
+    switch (planType) {
+      case 'monthly': return '30 days'
+      case 'quarterly': return '90 days'
+      case 'yearly': return '365 days'
+      default: return '30 days'
+    }
+  }
+  
+  const handleOneTimePayment = () => {
+    setShowPaymentOptions(false)
+    // Proceed with one-time payment logic
+    localStorage.setItem('formData', JSON.stringify(formData))
+    localStorage.setItem('companyData', JSON.stringify(companyData))
+    localStorage.setItem('hasExistingCompany', JSON.stringify(hasExistingCompany))
+    localStorage.setItem('amount', '50')
+    router.push('/payment-redirect?purpose=job-post')
+  }
+  
+  const handleSubscriptionSelected = (plan: SubscriptionPlan) => {
+    setShowPaymentOptions(false)
+    // Redirect to subscription payment
+    localStorage.setItem('planId', plan._id)
+    router.push(`/payment-redirect?purpose=BuySubscriptionAndPostJob`)
+  }
+  
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  setIsLoading(true)
+  
+  try {
+    if (!user) {
+      toast.error('Please log in to post a job')
+      return
+    }
+    
+    const hasActiveSubscription = user?.subscription && 
+                                user?.subscription.startDate && 
+                                user?.subscription.endDate && 
+                                new Date(user?.subscription.endDate) > new Date()
+
+    if (hasActiveSubscription) {
+      const jobData = {
+        ...formData,
+        title: formData.jobTitle,
+        location: `${formData.region}, ${formData.city}`
+      }
+      await createJob(jobData, hasExistingCompany ? undefined : companyData)
+      toast.success('Job posted successfully! Redirecting to homepage...')
+      router.push('/')
+    } else {
+      // No subscription - show payment options
+      setShowPaymentOptions(true)
+    }
+  } catch (error: any) {
+    toast.error(error.message || 'Failed to process job posting')
+  } finally {
+    setIsLoading(false)
+  }
+}
   
 
   const handleCompanyTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -279,36 +419,7 @@ export default function PostJobPage() {
     }));
   };
 
-  // Component for tag-like input fields
-  const TagInput = ({ label, id, items, itemClass, onKeyDown, placeholder }: TagInputProps) => (
-    <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
-        {label}
-      </label>
-      <div className="flex flex-wrap gap-2 mb-3 min-h-8">
-        {items.map((item) => (
-          <span key={item} className={`text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1 ${itemClass}`}>
-            {item}
-            <button
-              type="button"
-              onClick={() => handleRemoveItem(id, item)}
-              className="ml-1 hover:text-red-700 transition-colors"
-              aria-label={`Remove ${item}`}
-            >
-              <X size={14} />
-            </button>
-          </span>
-        ))}
-      </div>
-      <input
-        type="text"
-        id={id}
-        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
-        placeholder={placeholder}
-        onKeyDown={onKeyDown}
-      />
-    </div>
-  )
+
 
   // Toggle switch component
   const ToggleSwitch = ({ id, label, checked, onChange }: ToggleSwitchProps) => (
@@ -785,7 +896,13 @@ export default function PostJobPage() {
           
         </div>
       </main>
-
+      <PaymentOptionsModal
+  isOpen={showPaymentOptions}
+  onClose={() => setShowPaymentOptions(false)}
+  onOneTimePayment={handleOneTimePayment}
+  onSubscriptionSelected={handleSubscriptionSelected}
+  subscriptionPlans={subscriptionPlans}
+/>
       <Footer />
     </div>
   )

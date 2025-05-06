@@ -289,15 +289,6 @@ export default function Navbar() {
     loading: true
   })
   const [userRole, setUserRole] = React.useState<string | null>(null);
-  const socket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
-    withCredentials: true,
-    transports: ['websocket', 'polling'],
-    autoConnect: true,
-    path: '/socket.io',
-    extraHeaders: {
-      'Access-Control-Allow-Credentials': 'true'
-    }
-  });
   // Fetch authentication status
   React.useEffect(() => {
     const checkAuth = async () => {
@@ -496,6 +487,11 @@ export default function Navbar() {
     return (
       <>
         {mainNavItems.map((item) => {
+          // Skip rendering if the user is a freelancer and this is a post job item
+          if (userRole === "freelancer" && (item.title === "Employers Post Job" || item.title === "Freelancers Post Job")) {
+            return null;
+          }
+  
           const isBlocked = item.requiresAuth && !authState.isAuthenticated;
   
           return (
@@ -579,7 +575,11 @@ export default function Navbar() {
                 
                 <nav className="flex flex-col space-y-4 overflow-y-auto max-h-[calc(100vh-250px)]">
                   {/* Render main nav items in mobile menu */}
+    
                   {mainNavItems.map((item) => {
+                    if (userRole === "freelancer" && (item.title === "Employers Post Job" || item.title === "Freelancers Post Job")) {
+                      return null;
+                    }
                     return (
                       <Link
                         key={item.title}

@@ -106,7 +106,7 @@ export const userService = {
     } 
   },
   
-  async handleSubscriptionPaymentSuccess(planId: string) {
+  async handleSubscriptionPaymentSuccess(planId: any) {
     try {
       const response = await axios.post(`${API_URL}/api/v1/user/buy-subscription`, {
         subscriptionId:planId
