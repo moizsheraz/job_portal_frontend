@@ -7,29 +7,17 @@ import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, Trendin
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BigSale from "../public/big sale.png"
+
 interface StatsData {
   totalJobSeekers: number;
   totalFreelancers: number;
   totalJobsPosted: number;
   totalCompanies: number;
 }
-type Advertisement = {
-  _id: string;
-  image: string;
-  isActive: boolean;
-  createdAt: string;
-};
 
 export default function LandingPage() {
   const router = useRouter();
   const [stats, setStats] = useState<StatsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [ads, setAds] = useState<Advertisement[]>([]);
-  const [error, setError] = useState("");
-
-  
-
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -44,36 +32,11 @@ export default function LandingPage() {
 
     fetchStats();
   }, []);
-  const fetchAds = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("adminToken");
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/get-all-adverts`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setAds(data);
-      } else {
-        throw new Error("Failed to fetch advertisements");
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
-
- useEffect(() => {
-    fetchAds();
-  }, []);
+  const handleSubmit = (e: React.FormEvent)=>{
+    e.preventDefault();
+    router.push("/search")
+  }
 
   const handleJobClick = () => {
     router.push("/search");
@@ -109,8 +72,6 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      
-
       <main className="flex-grow">
         {/* Hero Section with improved gradient background */}
         <section className="bg-[#00214D] py-16 md:py-24 relative overflow-hidden">
@@ -142,8 +103,6 @@ export default function LandingPage() {
                   </Link>
                 </div>
 
-          
-
                 {/* Enhanced Search Bar with improved icon contrast */}
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200 max-w-5xl mx-auto">
   <div className="flex flex-col gap-4">
@@ -154,7 +113,6 @@ export default function LandingPage() {
         <div className="flex items-center gap-2 text-gray-700">
           <Briefcase size={18} className="text-yellow-800" />
           <span>Filter by job title</span>
-        </div>
         </div>
         
         {/* Location icon */}
@@ -182,7 +140,6 @@ export default function LandingPage() {
   </div>
 </div>
 
-
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
                   {["full-time", "part-time", "Freelance", "internship"].map((tag, index) => (
@@ -196,28 +153,25 @@ export default function LandingPage() {
                   ))}
                 </div>
               </div>
-          
 
               {/* Interactive Elements with better contrast */}
               <div className="lg:block relative rounded-lg">
               <div className="w-full mb-6">
-                {ads.map((ad) => (
-                    <div key={ad._id}>
-                      <a href="/sponsored" className="block">
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${ad.image}`}
-                          alt="Advertisement"
-                          width={650}
-                          height={120}
-                          className="w-full  shadow-md hover:opacity-95 transition-opacity"
-                          style={{ borderRadius: "15px" }}
-                        />
-                      </a>
-                      <div className="text-right">
-                        <span className="text-xs text-gray-400">Advertisement</span>
-                      </div>
-                    </div>
-                ))}
+                  <a href="/sponsored" className="block">
+                    <Image 
+                      src={BigSale} 
+                      alt="Advertisement" 
+                      width={650}
+                      height={120}
+                      className="w-full rounded-lg shadow-md hover:opacity-95 transition-opacity"
+                    style={{borderRadius: "15px"}}
+                      
+                    />
+                  </a>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400">Advertisement</span>
+                  </div>
+                </div>
                 <div className="bg-white bg-opacity-90 rounded-2xl shadow-xl p-6 relative">
                   {/* Active Job Seekers Card */}
                   <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">
@@ -305,8 +259,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        
 
         {/* Features Section */}
         <section className="py-16 md:py-24 bg-white">
@@ -525,3 +477,4 @@ export default function LandingPage() {
     </div>
   )
 }
+
