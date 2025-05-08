@@ -6,7 +6,7 @@ import Footer from "@/components/footer"
 import { Search, Briefcase, MessageSquare, Shield, ChevronRight, MapPin, TrendingUp, Zap, Users, MessageCircle, PaperclipIcon, Newspaper, UserCheck, Wrench } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import BigSale from "../public/big sale.png"
+import { userService } from "./services/userService"
 
 interface StatsData {
   totalJobSeekers: number;
@@ -14,10 +14,20 @@ interface StatsData {
   totalJobsPosted: number;
   totalCompanies: number;
 }
+interface AuthStatus {
+  isAuthenticated: boolean;
+  user?: {
+    sub: string;
+    email: string;
+    name: string;
+    picture: string;
+  };
+}
 
 export default function LandingPage() {
   const router = useRouter();
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -33,10 +43,31 @@ export default function LandingPage() {
     fetchStats();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent)=>{
-    e.preventDefault();
-    router.push("/search")
-  }
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        setAuthStatus({
+          isAuthenticated: true,
+          user: currentUser,
+        });
+  
+        if (currentUser.isBlocked) {
+          alert("You are blocked. Logging you out...");
+          router.push("/logout");
+          return;
+        }
+  
+        router.push('/');
+      } catch (error: any) {
+        console.error("Error fetching current user:", error.message);
+        setAuthStatus({ isAuthenticated: false });
+      }
+    };
+  
+    checkUserStatus();
+  }, []);
+  
 
   const handleJobClick = () => {
     router.push("/search");
@@ -157,21 +188,40 @@ export default function LandingPage() {
               {/* Interactive Elements with better contrast */}
               <div className="lg:block relative rounded-lg">
               <div className="w-full mb-6">
-                  <a href="/sponsored" className="block">
-                    <Image 
-                      src={BigSale} 
-                      alt="Advertisement" 
-                      width={650}
-                      height={120}
-                      className="w-full rounded-lg shadow-md hover:opacity-95 transition-opacity"
-                    style={{borderRadius: "15px"}}
-                      
-                    />
-                  </a>
-                  <div className="text-right">
-                    <span className="text-xs text-gray-400">Advertisement</span>
-                  </div>
-                </div>
+    <a href="/sponsored" className="block">
+    <Image 
+  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/uploads/adverts/ad.png`} 
+  alt="Advertisement"
+  width={650}
+  height={120}
+  className="rounded-lg shadow-md hover:opacity-95 transition-opacity animate-shake"
+  style={{
+    width: "650px",
+    height: "120px",
+    borderRadius: "15px",
+    animation: 'shake 0.5s infinite alternate'
+  }}
+/>
+
+
+    </a>
+    <div className="text-right">
+        <span className="text-xs text-gray-400">Advertisement</span>
+    </div>
+</div>
+
+<style jsx>{`
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        50% { transform: translateX(3px); }
+        75% { transform: translateX(-3px); }
+        100% { transform: translateX(3px); }
+    }
+    .animate-shake:hover {
+        animation: none;
+    }
+`}</style>
                 <div className="bg-white bg-opacity-90 rounded-2xl shadow-xl p-6 relative">
                   {/* Active Job Seekers Card */}
                   <div className="absolute -top-6 -left-6 bg-blue-900 rounded-2xl text-white p-4 shadow-lg flex items-center gap-3 animate-pulse">

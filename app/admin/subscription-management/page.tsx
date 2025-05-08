@@ -7,6 +7,8 @@ type Subscription = {
   _id: string;
   planType: string;
   price: number;
+  specialPrice?: number;
+  isAdvertised?: boolean;
   createdAt: string;
 };
 
@@ -24,9 +26,13 @@ export default function SubscriptionManagement() {
   const [showViewModal, setShowViewModal] = useState(false);
   
   // Form data
-  const [currentSubscription, setCurrentSubscription] = useState<Omit<Subscription, '_id' | 'createdAt'> & { _id?: string, createdAt?: string }>({
+  const [currentSubscription, setCurrentSubscription] = useState<
+    Omit<Subscription, '_id' | 'createdAt'> & { _id?: string, createdAt?: string }
+  >({
     planType: '',
     price: 0,
+    specialPrice: undefined,
+    isAdvertised: false,
   });
 
   useEffect(() => {
@@ -61,6 +67,8 @@ export default function SubscriptionManagement() {
     setCurrentSubscription({
       planType: '',
       price: 0,
+      specialPrice: undefined,
+      isAdvertised: false,
     });
   };
 
@@ -85,10 +93,12 @@ export default function SubscriptionManagement() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setCurrentSubscription(prev => ({ 
       ...prev, 
-      [name]: name === 'price' ? parseFloat(value) || 0 : value 
+      [name]: type === 'checkbox' ? checked : 
+              (type === 'number' ? (value === '' ? undefined : parseFloat(value)) : 
+              value)
     }));
   };
 
@@ -104,7 +114,12 @@ export default function SubscriptionManagement() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(currentSubscription)
+        body: JSON.stringify({
+          planType: currentSubscription.planType,
+          price: currentSubscription.price,
+          specialPrice: currentSubscription.specialPrice,
+          isAdvertised: currentSubscription.isAdvertised
+        })
       });
       
       if (!response.ok) {
@@ -138,7 +153,9 @@ export default function SubscriptionManagement() {
         },
         body: JSON.stringify({
           planType: currentSubscription.planType,
-          price: currentSubscription.price
+          price: currentSubscription.price,
+          specialPrice: currentSubscription.specialPrice,
+          isAdvertised: currentSubscription.isAdvertised
         })
       });
       
@@ -243,6 +260,8 @@ export default function SubscriptionManagement() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Plan Type</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Special Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Advertised</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Created</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                 </tr>
@@ -255,6 +274,12 @@ export default function SubscriptionManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       ₵{subscription.price.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {subscription.specialPrice ? `₵${subscription.specialPrice.toFixed(2)}` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {subscription.isAdvertised ? 'Yes' : 'No'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(subscription.createdAt).toLocaleDateString()}
@@ -320,7 +345,7 @@ export default function SubscriptionManagement() {
             <form onSubmit={handleCreateSubscription}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="create-planType" className="block text-sm font-medium text-gray-700">Plan Type</label>
+                  <label htmlFor="create-planType" className="block text-sm font-medium text-gray-700">Plan Type *</label>
                   <input
                     type="text"
                     id="create-planType"
@@ -332,7 +357,7 @@ export default function SubscriptionManagement() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="create-price" className="block text-sm font-medium text-gray-700">Price</label>
+                  <label htmlFor="create-price" className="block text-sm font-medium text-gray-700">Price *</label>
                   <input
                     type="number"
                     id="create-price"
@@ -344,6 +369,32 @@ export default function SubscriptionManagement() {
                     onChange={handleInputChange}
                     className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
                   />
+                </div>
+                <div>
+                  <label htmlFor="create-specialPrice" className="block text-sm font-medium text-gray-700">Special Price</label>
+                  <input
+                    type="number"
+                    id="create-specialPrice"
+                    name="specialPrice"
+                    min="0"
+                    step="0.01"
+                    value={currentSubscription.specialPrice || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full text-black border border-gray-300 rounded-md shadow-sm p-2"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="create-isAdvertised"
+                    name="isAdvertised"
+                    checked={currentSubscription.isAdvertised || false}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="create-isAdvertised" className="ml-2 block text-sm text-gray-700">
+                    Advertise this plan
+                  </label>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
@@ -393,7 +444,7 @@ export default function SubscriptionManagement() {
             <form onSubmit={handleUpdateSubscription}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="edit-planType" className="block text-sm font-medium text-gray-700">Plan Type</label>
+                  <label htmlFor="edit-planType" className="block text-sm font-medium text-gray-700">Plan Type *</label>
                   <input
                     type="text"
                     id="edit-planType"
@@ -405,7 +456,7 @@ export default function SubscriptionManagement() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700">Price</label>
+                  <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700">Price *</label>
                   <input
                     type="number"
                     id="edit-price"
@@ -417,6 +468,32 @@ export default function SubscriptionManagement() {
                     onChange={handleInputChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-black"
                   />
+                </div>
+                <div>
+                  <label htmlFor="edit-specialPrice" className="block text-sm font-medium text-gray-700">Special Price</label>
+                  <input
+                    type="number"
+                    id="edit-specialPrice"
+                    name="specialPrice"
+                    min="0"
+                    step="0.01"
+                    value={currentSubscription.specialPrice || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-black"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="edit-isAdvertised"
+                    name="isAdvertised"
+                    checked={currentSubscription.isAdvertised || false}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="edit-isAdvertised" className="ml-2 block text-sm text-gray-700">
+                    Advertise this plan
+                  </label>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
@@ -470,6 +547,18 @@ export default function SubscriptionManagement() {
               <div>
                 <p className="text-sm font-medium text-gray-500">Price</p>
                 <p className="text-md text-gray-900">₵{currentSubscription.price?.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Special Price</p>
+                <p className="text-md text-gray-900">
+                  {currentSubscription.specialPrice ? `₵${currentSubscription.specialPrice.toFixed(2)}` : '-'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Advertised</p>
+                <p className="text-md text-gray-900">
+                  {currentSubscription.isAdvertised ? 'Yes' : 'No'}
+                </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Subscription ID</p>

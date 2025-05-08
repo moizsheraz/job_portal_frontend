@@ -1,8 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import Layout from '../../../components/AdminLayout';
-import { Eye, Pencil, Trash, X } from 'lucide-react';
-import Link from 'next/link';
+import { Eye, Pencil, Trash, X, Lock, Unlock } from 'lucide-react';
 
 type User = {
   _id: string;
@@ -10,6 +9,7 @@ type User = {
   email: string;
   password?: string;
   createdAt: string;
+  isBlocked?: boolean;
 };
 
 export default function UserManagement() {
@@ -30,7 +30,8 @@ export default function UserManagement() {
     name: '',
     email: '',
     password: '',
-    createdAt: ''
+    createdAt: '',
+    isBlocked: false
   });
 
   useEffect(() => {
@@ -112,15 +113,14 @@ export default function UserManagement() {
     setCurrentUser(prev => ({ ...prev, [name]: value }));
   };
 
- 
-
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('adminToken');
-      const updateData: {username: string, email: string, password?: string} = {
+      const updateData: {username: string, email: string, password?: string, isBlocked?: boolean} = {
         username: currentUser.name,
-        email: currentUser.email
+        email: currentUser.email,
+        isBlocked: currentUser.isBlocked
       };
       
       // Only include password if it's been provided
@@ -174,8 +174,30 @@ export default function UserManagement() {
     }
   };
 
-
-
+  const toggleBlockUser = async (userId: string, isCurrentlyBlocked: boolean) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isBlocked: !isCurrentlyBlocked })
+      });
+      
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsers(prev => prev.map(user => user._id === updatedUser._id ? updatedUser : user));
+        setSuccess(`User ${isCurrentlyBlocked ? 'unblocked' : 'blocked'} successfully`);
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        throw new Error(`Failed to ${isCurrentlyBlocked ? 'unblock' : 'block'} user`);
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : `Failed to ${isCurrentlyBlocked ? 'unblock' : 'block'} user`);
+    }
+  };
 
   if (loading) {
     return (
@@ -190,7 +212,6 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-
         {error && (
           <div className="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded flex justify-between items-center">
             <p>{error}</p>
@@ -222,6 +243,7 @@ export default function UserManagement() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Username</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Joined</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                 </tr>
@@ -235,27 +257,39 @@ export default function UserManagement() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.email}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isBlocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                        {user.isBlocked ? 'Blocked' : 'Active'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 flex gap-1 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
-                      <Link
-                        href={`/users/${user._id}`}
-                        className="  p-1 rounded-full "
+                      <button
+                        onClick={() => handleViewUser(user._id)}
+                        className="p-1 rounded-full hover:bg-gray-100"
                         title="View User"
                       >
                         <Eye className="h-5 w-5" />
-                      </Link>
+                      </button>
                       <button
                         onClick={() => handleEditClick(user._id)}
-                        className="  p-1 rounded-full "
+                        className="p-1 rounded-full hover:bg-gray-100"
                         title="Edit User"
                       >
                         <Pencil className="h-5 w-5" />
                       </button>
                       <button
+                        onClick={() => toggleBlockUser(user._id, !!user.isBlocked)}
+                        className={`p-1 rounded-full ${user.isBlocked ? 'hover:bg-green-100 text-green-600' : 'hover:bg-red-100 text-red-600'}`}
+                        title={user.isBlocked ? 'Unblock User' : 'Block User'}
+                      >
+                        {user.isBlocked ? <Unlock className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                      </button>
+                      <button
                         onClick={() => handleDeleteClick(user)}
-                        className=" hover:text-red-600 p-1 rounded-full hover:bg-red-50"
+                        className="p-1 rounded-full hover:bg-red-100 text-red-600"
                         title="Delete User"
                       >
                         <Trash className="h-5 w-5" />
@@ -275,29 +309,12 @@ export default function UserManagement() {
         )}
       </div>
 
-      {/* Create User Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium ">Create New User</h3>
-              <button 
-                onClick={() => setShowCreateModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Edit User Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium ">Edit User</h3>
+              <h3 className="text-lg font-medium">Edit User</h3>
               <button 
                 onClick={() => setShowEditModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -344,6 +361,19 @@ export default function UserManagement() {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500"
                   />
                 </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="edit-isBlocked"
+                    name="isBlocked"
+                    checked={currentUser.isBlocked || false}
+                    onChange={(e) => setCurrentUser(prev => ({ ...prev, isBlocked: e.target.checked }))}
+                    className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="edit-isBlocked" className="ml-2 block text-sm text-gray-700">
+                    Block this user
+                  </label>
+                </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
@@ -370,7 +400,7 @@ export default function UserManagement() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium ">User Details</h3>
+              <h3 className="text-lg font-medium">User Details</h3>
               <button 
                 onClick={() => setShowViewModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -386,6 +416,14 @@ export default function UserManagement() {
               <div>
                 <p className="text-sm font-medium text-gray-500">Email</p>
                 <p className="text-md text-gray-900">{currentUser.email}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Status</p>
+                <p className="text-md">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${currentUser.isBlocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {currentUser.isBlocked ? 'Blocked' : 'Active'}
+                  </span>
+                </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">User ID</p>
