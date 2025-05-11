@@ -6,6 +6,8 @@ import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { createJob } from '../services/JobService';
 import { userService } from '../services/userService';
+import axios from 'axios';
+import { UserData } from "@/app/profile/types"
 
 export default function PaymentPage() {
   return (
@@ -20,6 +22,7 @@ function PaymentContent() {
   const searchParams = useSearchParams();
   const [isMounted, setIsMounted] = useState(false);
   const [mode, setMode] = useState<'form' | 'redirect'>('form');
+  const [hasAgreed, setHasAgreed] = useState(false); // New state for checkbox
 
   // Form state
   const [formData, setFormData] = useState({
@@ -34,13 +37,15 @@ function PaymentContent() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [amount, setAmount] = useState('0.00');
+  const [user, setUser] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize component
   useEffect(() => {
     setIsMounted(true);
     const token = searchParams?.get('token');
     const isRedirect = searchParams?.get('redirect');
-    
+
     // Set amount from localStorage
     const storedPrice = localStorage.getItem('price');
     if (storedPrice) {
@@ -54,6 +59,24 @@ function PaymentContent() {
       setMode('redirect');
     }
   }, [searchParams]);
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setIsLoading(true)
+        const userData = await userService.getCurrentUser()
+        console.log('User data from payment page:', userData)
+        setIsLoading(false)
+        setUser(userData)
+      } catch (error) {
+        router.push("/login")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkAuth()
+  }, [])
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -64,54 +87,54 @@ function PaymentContent() {
   // Verify payment token
   const verifyToken = async (token: string) => {
     try {
-    setLoading(true);
-    setMessage('⏳ Verifying payment...');
-    
-    const purpose = searchParams?.get('purpose');
-    if (!purpose) {
-      setMessage('⚠️ Payment purpose missing');
-      setLoading(false);
-      return;
-    }
+      setLoading(true);
+      setMessage('⏳ Verifying payment...');
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/express-pay-gh/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    });
+      const purpose = searchParams?.get('purpose');
+      if (!purpose) {
+        setMessage('⚠️ Payment purpose missing');
+        setLoading(false);
+        return;
+      }
 
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/express-pay-gh/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
 
-    const result = await res.json();
-  
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const result = await res.json();
+
       if (result?.result === 1) {
         if (purpose?.startsWith('job-post')) {
           setMessage('⏳ Payment successful! Posting job...');
-  
+
           const jobDataRaw = localStorage.getItem('formData');
           const companyDataRaw = localStorage.getItem('companyData');
-  
+
           if (jobDataRaw && companyDataRaw) {
             const jobData = JSON.parse(jobDataRaw);
             const companyData = JSON.parse(companyDataRaw);
-  
+
             const jobPostResponse = await createJob(jobData, companyData);
             setMessage(jobPostResponse?.success
               ? '✅ Payment Successful & Job Posted!'
               : '⚠️ Payment Successful but Job Posting Failed.');
-  
+
             // Clear storage
             localStorage.removeItem('formData');
             localStorage.removeItem('companyData');
           } else {
             setMessage('⚠️ Payment succeeded but job/company data is missing.');
           }
-  
+
         } else if (purpose?.startsWith('subscription')) {
           setMessage('⏳ Payment successful! Activating subscription...');
-  
+
           const planId = localStorage.getItem('planId');
           if (planId) {
             await userService.handleSubscriptionPaymentSuccess(planId);
@@ -120,16 +143,16 @@ function PaymentContent() {
           } else {
             setMessage('⚠️ Payment succeeded but subscription plan ID is missing.');
           }
-  
+
         } else if (purpose?.startsWith('freelance')) {
           const response = await userService.handleFreelancerPaymentSuccess();
-            setMessage('✅ Payment Successful & Freelancer Status Activated!');
-  
+          setMessage('✅ Payment Successful & Freelancer Status Activated!');
+
         } else if (purpose?.startsWith('BuySubscriptionAndPostJob')) {
           const jobData = JSON.parse(localStorage.getItem('formData') || '{}');
           const companyData = JSON.parse(localStorage.getItem('companyData') || '{}');
-          const planId = localStorage.getItem('planId'); 
-  
+          const planId = localStorage.getItem('planId');
+
           const subscriptionResponse = await userService.handleSubscriptionPaymentSuccess(planId);
           const jobPostResponse = await createJob(jobData, companyData);
           console.log('Subscription Response:', subscriptionResponse);
@@ -150,15 +173,32 @@ function PaymentContent() {
             setMessage('⚠️ Payment succeeded but subscription plan ID is missing.');
           }
 
-        }else if(purpose?.startsWith('downloadResume')){
-          
+        } else if (purpose?.startsWith('resume')) {
+          try {
+            setIsLoading(true);
+            const currentUser = await userService.getCurrentUser();
+            if (!currentUser) {
+              setMessage('⚠️ User data not found');
+              return;
+            }
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/${currentUser._id}/premium-resume`, {
+              withCredentials: true
+            });
+            window.open(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/${response.data.path}`, '_blank', 'noopener,noreferrer');
+            setMessage('✅ Premium resume access granted!');
+          } catch (error) {
+            setMessage('⚠️ Error processing resume payment');
+            console.error(error);
+          } finally {
+            setIsLoading(false);
+          }
         } else {
           setMessage('✅ Payment Verified!');
         }
       } else {
         setMessage('❌ Payment Failed or Cancelled');
       }
-  
+
     } catch (err) {
       setMessage('⚠️ Unexpected error occurred while verifying payment.');
       if (process.env.NODE_ENV === 'development') {
@@ -168,12 +208,12 @@ function PaymentContent() {
       setLoading(false);
     }
   };
-  
+
   const purpose = searchParams?.get('purpose');
-    if (!purpose) {
-        setMessage('⚠️ Invalid payment purpose.');
-        return;
-    }
+  if (!purpose) {
+    setMessage('⚠️ Invalid payment purpose.');
+    return;
+  }
 
   const initiatePayment = async () => {
     try {
@@ -202,6 +242,10 @@ function PaymentContent() {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAgreed) {
+      setMessage('⚠️ Please acknowledge that you understand you must return to this page after payment');
+      return;
+    }
     initiatePayment();
   };
 
@@ -224,11 +268,10 @@ function PaymentContent() {
               </>
             ) : (
               <>
-                <div className={`text-4xl mb-3 ${
-                  message.includes('✅') ? 'text-green-500' : 
-                  message.includes('❌') ? 'text-red-500' : 
-                  'text-yellow-600'
-                }`}>
+                <div className={`text-4xl mb-3 ${message.includes('✅') ? 'text-green-500' :
+                    message.includes('❌') ? 'text-red-500' :
+                      'text-yellow-600'
+                  }`}>
                   {message.includes('✅') ? '✓' : message.includes('❌') ? '✗' : '⚠️'}
                 </div>
                 <h2 className="text-2xl font-bold text-[#00214D] mb-4">
@@ -268,17 +311,16 @@ function PaymentContent() {
             <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700">
               <p className="font-semibold">⚠️ Important Notice:</p>
               <p className="mt-1 text-sm">
-                After completing your payment, you <strong>MUST</strong> return to this page for your transaction to be processed. 
+                After completing your payment, you <strong>MUST</strong> return to this page for your transaction to be processed.
                 If you don't return here, your payment may not be verified and your service won't be activated.
               </p>
             </div>
 
             {message && (
-              <div className={`mb-6 p-4 rounded-lg ${
-                message.includes('✅') ? 'bg-green-100 text-green-700' : 
-                message.includes('❌') ? 'bg-red-100 text-red-700' : 
-                'bg-yellow-100 text-yellow-700'
-              }`}>
+              <div className={`mb-6 p-4 rounded-lg ${message.includes('✅') ? 'bg-green-100 text-green-700' :
+                  message.includes('❌') ? 'bg-red-100 text-red-700' :
+                    'bg-yellow-100 text-yellow-700'
+                }`}>
                 {message}
               </div>
             )}
@@ -370,13 +412,32 @@ function PaymentContent() {
                 </div>
               </div>
 
+              {/* Added checkbox for user acknowledgment */}
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="return-agreement"
+                    name="return-agreement"
+                    type="checkbox"
+                    checked={hasAgreed}
+                    onChange={(e) => setHasAgreed(e.target.checked)}
+                    className="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="return-agreement" className="font-medium text-gray-700">
+                    I understand that I must return to this page after completing my payment for the transaction to be processed.
+                  </label>
+                </div>
+              </div>
+
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className={`w-full mt-2 px-6 py-4 text-lg font-medium text-white rounded-lg transition-all ${
-                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-600 hover:bg-yellow-700 shadow-md hover:shadow-lg'
-                  }`}
+                  disabled={loading || !hasAgreed}
+                  className={`w-full mt-2 px-6 py-4 text-lg font-medium text-white rounded-lg transition-all ${loading ? 'bg-gray-400 cursor-not-allowed' : 
+                    !hasAgreed ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-600 hover:bg-yellow-700 shadow-md hover:shadow-lg'
+                    }`}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">

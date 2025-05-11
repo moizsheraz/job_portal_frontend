@@ -94,7 +94,7 @@ export default function Footer() {
                 {/* YouTube */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <a href="https://www.youtube.com/@Alljobsgh" target="_blank" rel="noopener noreferrer">
+                    <a href="https://www.youtube.com/@brightwaygroupofcompanies" target="_blank" rel="noopener noreferrer">
                       <Youtube size={20} />
                     </a>
                   </TooltipTrigger>
@@ -132,7 +132,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-gray-400">
               <li><Link href="/contact" className="hover:underline hover:text-white">Help Center</Link></li>
               <li><Link href={"/"}  className="hover:underline hover:text-white">Video Demo</Link></li>
-              <li><Link href={"http://www.brightwaygroup.org"} className="hover:underline hover:text-white">Events</Link></li>
+              <li><Link href={"https://brightwaygroup.org"} className="hover:underline hover:text-white">Events</Link></li>
             </ul>
           </div>
         </div>

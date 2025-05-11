@@ -7,9 +7,10 @@ import {
   CreditCard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import Image from 'next/image';
+import BrightWayLogo from "../../public/brightwaylogo.png"
 
 export default function AboutPage() {
   const features = [
@@ -46,6 +47,23 @@ export default function AboutPage() {
             <p className="text-xl font-semibold text-yellow-300 max-w-2xl mx-auto">
               Product of Brightway Group of Companies Global
             </p>
+            {/* Add Brightway Logo with link */}
+            <div className="mt-6 flex justify-center">
+              <a 
+                href="https://brightwaygroup.org" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className=""
+              >
+                <Image 
+                  src={BrightWayLogo} 
+                  alt="Brightway Group Logo"
+                  width={200} 
+                  height={80} 
+                  className="object-contain"
+                />
+              </a>
+            </div>
           </section>
 
           {/* Our Story */}
@@ -60,7 +78,7 @@ export default function AboutPage() {
             </p>
             <div className="text-center">
               <Button
-                onClick={() => window.open("http://www.brightwaygroup.org", "_blank")}
+                onClick={() => window.open("https://brightwaygroup.org", "_blank")}
                 className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-full"
               >
                 Learn More About Brightway
@@ -92,4 +110,3 @@ export default function AboutPage() {
     </>
   )
 }
-// All set all done

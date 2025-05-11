@@ -263,8 +263,8 @@ function Logo() {
         <Image 
           src="/logo.png" 
           alt="ALL JOBS Logo" 
-          width={70} 
-          height={70} 
+          width={90} 
+          height={90} 
           priority 
           className="transition-transform duration-300 group-hover:scale-110"
         />

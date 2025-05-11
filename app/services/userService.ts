@@ -69,6 +69,22 @@ export const userService = {
       throw new Error(error.response?.data?.message || 'Failed to upload resume');
     }
   },
+  async uploadPremiumResume(userId: string, file: File): Promise<UserData> {
+    const formData = new FormData();
+    formData.append('resume', file);
+
+    try {
+      const response = await axios.put(`${API_URL}/api/v1/user/${userId}/premium-resume`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to upload resume');
+    }
+  },
 
   // create payment intent
  async createPaymentIntent(amount: number) {
