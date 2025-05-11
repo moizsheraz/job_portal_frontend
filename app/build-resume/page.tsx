@@ -7,13 +7,14 @@ import { jsPDF } from "jspdf"
 import html2canvas from "html2canvas"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
-import { Check, CreditCard, Download } from "lucide-react"
+import { Check, CreditCard, Download, Router } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
 
 // Import types
 import type { ResumeData, Education, Experience, TemplateType, PaymentStatusType } from "../../app/types/resume"
@@ -115,6 +116,7 @@ function PaymentForm({ clientSecret, onSuccess, onClose }: PaymentFormProps) {
       setIsProcessing(false)
     }
   }
+  const router = useRouter();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -172,31 +174,14 @@ export default function ResumeBuilder() {
   const resumeRef = useRef<HTMLDivElement>(null)
   const [isGenerating, setIsGenerating] = useState(false)
 
-  // Payment state
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusType>("idle")
-  const [shouldDownloadPDF, setShouldDownloadPDF] = useState(false)
   const { toast } = useToast()
 
-  // Effect to handle PDF download after payment success
-  useEffect(() => {
-    if (paymentStatus === "success" && shouldDownloadPDF) {
-      const generatePDF = async () => {
-        await generateAndDownloadPDF()
-        setShouldDownloadPDF(false)
-      }
-      generatePDF()
-    }
-  }, [paymentStatus, shouldDownloadPDF])
-
-  // Handle input changes
+const router = useRouter()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setResumeData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Handle array field changes
   const handleArrayChange = (
     field: "education" | "experience",
     index: number,
@@ -243,47 +228,6 @@ export default function ResumeBuilder() {
     setResumeData((prev) => ({ ...prev, skills: updatedSkills }))
   }
 
-  // Create payment intent
-  const createPaymentIntent = async () => {
-    try {
-      setPaymentStatus("processing")
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/create-payment-intent`,
-        { amount: 499 }, // $4.99 in cents
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        },
-      )
-
-      if (response.status !== 200) {
-        throw new Error("Failed to create payment intent")
-      }
-
-      const { clientSecret } = response.data
-      setClientSecret(clientSecret)
-      setShowPaymentModal(true)
-      setPaymentStatus("idle")
-    } catch (error) {
-      console.error("Error creating payment intent:", error)
-      toast({
-        variant: "destructive",
-        title: "Payment Error",
-        description: "Failed to initialize payment. Please try again later.",
-      })
-      setPaymentStatus("error")
-    }
-  }
-
-  // Handle payment success
-  const handlePaymentSuccess = () => {
-    setShowPaymentModal(false)
-    setPaymentStatus("success")
-    setShouldDownloadPDF(true) // Set flag to generate PDF
-  }
 
   // Generate and download PDF
   const generateAndDownloadPDF = async () => {
@@ -341,17 +285,22 @@ export default function ResumeBuilder() {
     }
   }
 
-  // Download PDF handler
-  const downloadPDF = async () => {
-    // If payment is not successful yet, initiate payment flow
-    if (paymentStatus !== "success") {
-      await createPaymentIntent()
-      return
-    }
 
-    // If already paid, generate and download PDF
-    await generateAndDownloadPDF()
+const downloadPDF = async () => {
+  try {
+    localStorage.setItem('resumeData', JSON.stringify(resumeData));
+    
+    // 2. Redirect to payment page with purpose
+    router.push('/payment-redirect?purpose=downloadResume');
+    
+  } catch (error) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to initiate payment process",
+    });
   }
+};
 
   // Template selection
   const selectTemplate = (template: TemplateType) => {
@@ -534,17 +483,11 @@ export default function ResumeBuilder() {
                     ) : (
                       <span className="flex items-center">
                         <Download className="mr-2 h-4 w-4" />
-                        {paymentStatus === "success" ? "Download Resume PDF" : "Purchase & Download (₵4.99)"}
+                        {"Purchase & Download (₵4.99)"}
                       </span>
                     )}
                   </Button>
 
-                  {paymentStatus === "success" && (
-                    <div className="mt-2 flex items-center justify-center text-sm text-green-600">
-                      <Check className="h-4 w-4 mr-1" />
-                      Payment complete! You can now download your resume.
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -561,49 +504,7 @@ export default function ResumeBuilder() {
         </div>
       </div>
 
-      {/* Payment Modal */}
-      <Dialog
-        open={showPaymentModal}
-        onOpenChange={(open) => {
-          // Only allow closing if not processing payment
-          if (!open && paymentStatus !== "processing") {
-            setShowPaymentModal(false)
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md bg-white rounded-lg overflow-y-auto max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Complete Your Purchase</DialogTitle>
-            <DialogDescription>Pay ₵4.99 to download your premium resume in PDF format.</DialogDescription>
-          </DialogHeader>
 
-          {clientSecret ? (
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <PaymentForm
-                clientSecret={clientSecret}
-                onSuccess={handlePaymentSuccess}
-                onClose={() => setShowPaymentModal(false)}
-              />
-            </Elements>
-          ) : (
-            <div className="flex items-center justify-center p-6">
-              <svg
-                className="animate-spin h-8 w-8 text-primary"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   <Footer/>
   </>

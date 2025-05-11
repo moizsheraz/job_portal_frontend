@@ -17,6 +17,7 @@ export default function FreelancerUpgradeSection({ user, isLoading, onUpgrade }:
 const router = useRouter();
   const handleUpgradeClick = async () => {
     try {
+      localStorage.setItem('price', '29.99');
     router.push('/payment-redirect?purpose=freelance');      
     } catch (error: any) {
       toast.error(error.message || 'Failed to create payment.');

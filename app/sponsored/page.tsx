@@ -130,6 +130,16 @@ export default function SubscriptionAdvertisementPage() {
     setShowDetailsModal(true);
   };
 
+  const handleSubscribe = (plan: SubscriptionPlan) => {
+    // Store the price in localStorage
+    const priceToStore = plan.specialPrice || plan.price;
+    localStorage.setItem('price', priceToStore.toString());
+    localStorage.setItem('planId', plan._id);
+    
+    // Redirect to payment page
+    window.location.href = `/payment-redirect?purpose=BuyDiscountedSubscription`;
+  };
+
   if (loading) {
     return (
       <>
@@ -235,14 +245,14 @@ export default function SubscriptionAdvertisementPage() {
                       </ul>
 
                       <Button
-                        onClick={() => handlePlanSelect(plan)}
-                        className={`w-full py-6 text-lg rounded-lg
+                        onClick={() => handleSubscribe(plan)}
+                        className={`w-full py-6 rounded-xl text-lg
                           ${plan.isAdvertised 
                             ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
                             : 'bg-[#00214D] hover:bg-[#003366] text-white'
                           }`}
                       >
-                        Get Started
+                        Subscribe Now
                       </Button>
                     </div>
                   </div>
@@ -345,9 +355,7 @@ export default function SubscriptionAdvertisementPage() {
                   Close
                 </Button>
                 <Button
-                  onClick={() => {
-                    window.location.href = `/payment-redirect?purpose=subscription&planId=${selectedPlan._id}`;
-                  }}
+                  onClick={() => handleSubscribe(selectedPlan)}
                   className={`flex-1 py-3
                     ${selectedPlan.isAdvertised 
                       ? 'bg-yellow-600 hover:bg-yellow-700' 

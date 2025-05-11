@@ -358,23 +358,34 @@ const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([
     }
   }
   
-  const handleOneTimePayment = () => {
-    setShowPaymentOptions(false)
-    // Proceed with one-time payment logic
-    localStorage.setItem('formData', JSON.stringify(formData))
-    localStorage.setItem('companyData', JSON.stringify(companyData))
-    localStorage.setItem('amount', '50')
-    router.push('/payment-redirect?purpose=job-post')
+ const handleOneTimePayment = () => {
+  try {
+    setShowPaymentOptions(false);
+    localStorage.setItem('formData', JSON.stringify(formData));
+    localStorage.setItem('companyData', JSON.stringify(companyData));
+    localStorage.setItem('price', '50'); // GH₵50 fixed price
+    localStorage.setItem('purpose', 'job-post');
+    router.push('/payment-redirect?purpose=job-post');
+  } catch (error) {
+    console.error('Error setting payment data:', error);
+    toast.error('Failed to prepare payment');
   }
-  
-  const handleSubscriptionSelected = (plan: SubscriptionPlan) => {
-    setShowPaymentOptions(false)
-    // Redirect to subscription payment
-    localStorage.setItem('planId', plan._id)
-    localStorage.setItem('formData', JSON.stringify(formData))
-    localStorage.setItem('companyData', JSON.stringify(companyData))
-    router.push(`/payment-redirect?purpose=BuySubscriptionAndPostJob`)
+};
+
+const handleSubscriptionSelected = (plan: SubscriptionPlan) => {
+  try {
+    setShowPaymentOptions(false);
+    localStorage.setItem('planId', plan._id);
+    localStorage.setItem('formData', JSON.stringify(formData));
+    localStorage.setItem('companyData', JSON.stringify(companyData));
+    localStorage.setItem('price', plan.price.toString());
+    localStorage.setItem('purpose', 'BuySubscriptionAndPostJob');
+    router.push('/payment-redirect?purpose=BuySubscriptionAndPostJob');
+  } catch (error) {
+    console.error('Error setting subscription data:', error);
+    toast.error('Failed to prepare subscription');
   }
+};
   
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault()
