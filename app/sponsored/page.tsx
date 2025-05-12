@@ -221,15 +221,15 @@ export default function SubscriptionAdvertisementPage() {
                         {plan.specialPrice ? (
                           <>
                             <span className="text-4xl font-bold text-yellow-600">
-                              ₵{plan.specialPrice.toFixed(2)}
+                              GH₵ {plan.specialPrice.toFixed(2)}
                             </span>
                             <span className="ml-2 text-gray-400 line-through">
-                              ₵{plan.price.toFixed(2)}
+                              GH₵ {plan.price.toFixed(2)}
                             </span>
                           </>
                         ) : (
                           <span className="text-4xl font-bold text-[#00214D]">
-                            ₵{plan.price.toFixed(2)}
+                            GH₵ {plan.price.toFixed(2)}
                           </span>
                         )}
                         <p className="text-gray-500 mt-1">per {plan.duration}</p>

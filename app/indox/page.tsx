@@ -619,9 +619,6 @@ const ChatComponent = () => {
               className="p-4 border-t border-gray-200 bg-[#00214D]"
             >
               <div className="flex items-center space-x-2">
-                <button type="button" className="text-white hover:text-yellow-400 p-2">
-                  <Paperclip size={20} />
-                </button>
                 <Input
                   value={newMessage}
                   onChange={(e) => {
@@ -629,7 +626,7 @@ const ChatComponent = () => {
                     handleTyping();
                   }}
                   placeholder="Type a message..."
-                  className="flex-1 bg-white border-none rounded-full focus-visible:ring-1 focus-visible:ring-yellow-500"
+                  className="flex-1 bg-white border-none rounded-full "
                 />
                 <Button 
                   type="submit"

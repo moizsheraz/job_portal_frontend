@@ -15,11 +15,34 @@ interface Freelancer {
   profession: string
 }
 
+const professionSuggestions = [
+  "Fashion Designing",
+  "Cleaning",
+  "Carpentry",
+  "Car Mechanics",
+  "HVAC – Air Conditioning",
+  "Driving",
+  "Roofing",
+  "Windows",
+  "Masonry",
+  "Painting",
+  "Remodeling",
+  "Plumbing",
+  "Hair Dressing",
+  "Electoral",
+  "Landscaping",
+  "Caregiving",
+  "Laborers",
+  "Handyman"
+]
+
 export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<Freelancer[]>([])
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -47,8 +70,25 @@ export default function FreelancersPage() {
     setFilteredFreelancers(results)
   }, [searchTerm, freelancers])
 
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      const filtered = professionSuggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      setFilteredSuggestions(filtered)
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [searchTerm])
+
   const handleCardClick = (id: string) => {
     router.push(`/users/${id}`)
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion)
+    setShowSuggestions(false)
   }
 
   return (
@@ -69,7 +109,7 @@ export default function FreelancersPage() {
           </div>
 
           {/* Search Bar */}
-          <div className="mb-12 max-w-md mx-auto">
+          <div className="mb-12 max-w-md mx-auto relative">
             <div className="relative flex items-center bg-white rounded-full shadow-lg overflow-hidden">
               <div className="pl-4 text-gray-400">
                 <Search size={20} />
@@ -79,9 +119,24 @@ export default function FreelancersPage() {
                 placeholder="Search by name or profession..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => searchTerm.length > 0 && setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className="w-full py-3 px-4 text-gray-700 focus:outline-none"
               />
             </div>
+            {showSuggestions && filteredSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg max-h-60 overflow-auto">
+                {filteredSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {loading ? (

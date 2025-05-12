@@ -57,6 +57,10 @@ export default function LandingPage() {
           router.push("/logout");
           return;
         }
+        if(currentUser.isDeleted){
+          router.push("/logout");
+          return;
+        }
   
         router.push('/');
       } catch (error: any) {
@@ -154,7 +158,7 @@ export default function LandingPage() {
         
         {/* Salary icon */}
         <div className="flex items-center gap-2 text-gray-700">
-          <span className="font-bold text-xl text-yellow-800">₵</span>
+          <span className="font-bold text-xl text-yellow-800">GH₵</span>
           <span>Set salary range</span>
         </div>
       </div>
@@ -259,7 +263,7 @@ export default function LandingPage() {
         </div>
         <div className="text-right">
           <p className="font-medium text-[#00214D]">
-          ₵{job.salaryMin} - ₵{job.salaryMax} / month
+          GH₵ {job.salaryMin} - GH₵ {job.salaryMax} / month 
           </p>
           <div className="flex items-center text-xs text-gray-500">
             <MapPin size={12} className="mr-1" />
@@ -322,6 +326,9 @@ export default function LandingPage() {
                 More than just a job board, we provide tools and resources to help you thrive in your career journey.
               </p>
             </div>
+
+
+
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[

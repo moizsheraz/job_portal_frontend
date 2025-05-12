@@ -268,10 +268,9 @@ export default function JobDetails({ params }) {
 
               <div className="flex flex-wrap gap-4 mt-4">
                 <div className="flex items-center rounded-xl px-4 py-2 bg-[#003b8a]/50">
-                  <DollarSign className="h-5 w-5 mr-2 text-yellow-500" />
                   <div>
                     <p className="text-xs text-gray-300">Salary</p>
-                    <p className="font-medium">{jobData.salary} {jobData.salaryType && `/ ${jobData.salaryType.toLowerCase()}`}</p>
+                    <p className="font-medium">GH₵{jobData.salary} {jobData.salaryType && `/ ${jobData.salaryType.toLowerCase()}`}</p>
                   </div>
                 </div>
                 <div className="flex items-center rounded-xl px-4 py-2 bg-[#003b8a]/50">

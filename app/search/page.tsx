@@ -543,9 +543,9 @@ function JobPageContent(){
                           className="bg-yellow-600 text-white font-bold text-xs rounded-full px-3 py-1 flex items-center"
                         >
                           {key === "salaryMin"
-                            ? `Min $${value}`
+                            ? `Min GH₵${value}`
                             : key === "salaryMax"
-                            ? `Max $${value}`
+                            ? `Max GH₵${value}`
                             : value}
                           <X
                             size={14}
@@ -656,9 +656,8 @@ function JobPageContent(){
                             <div className="mt-3 flex flex-wrap gap-y-2">
                               {job.salary && (
                                 <div className="mr-4 flex items-center text-sm">
-                                  <DollarSign size={14} className="mr-1 text-gray-500" />
                                   <span className="font-medium text-gray-900">
-                                    {job.negotiable ? "Negotiable" : `$${job.salary}/${job.salaryType}`}
+                                    {job.negotiable ? "Negotiable" : `GH₵${job.salary}/${job.salaryType}`}
                                   </span>
                                 </div>
                               )}

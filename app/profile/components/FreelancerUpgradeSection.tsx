@@ -63,7 +63,7 @@ const router = useRouter();
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div className="mb-4 sm:mb-0">
             <p className="text-lg font-bold text-gray-900">Freelancer Membership</p>
-            <p className="text-[#00214D] font-bold text-2xl">₵29.99</p>
+            <p className="text-[#00214D] font-bold text-2xl">GH₵ 29.99</p>
             <p className="text-gray-500 text-sm">For 60 Days - One-time payment</p>
           </div>
           <button

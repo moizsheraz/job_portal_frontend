@@ -288,7 +288,7 @@ export default function SubscriptionSection({ user, isLoading, onSubscribe }: Su
               <div className={`text-center mb-4 pb-4 border-b ${plan.planType === 'quarterly' ? 'border-blue-200' : 'border-gray-100'}`}>
                 <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
                 <p className="text-gray-500 font-bold text-sm mb-2">{plan.description}</p>
-                <p className="text-3xl font-bold text-gray-900">${plan.price}</p>
+                <p className="text-3xl font-bold text-gray-900">GH₵{plan.price}</p>
                 <p className="text-gray-500 font-bold text-sm">for {plan.duration}</p>
                 {plan.planType === 'quarterly' && (
                   <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
