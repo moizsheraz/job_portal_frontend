@@ -30,7 +30,7 @@ function PaymentContent() {
     lastname: '',
     email: '',
     phonenumber: '',
-    currency: 'GH₵',
+    currency: 'GHS',
   });
 
   // UI state
@@ -395,7 +395,7 @@ function PaymentContent() {
                   </label>
                   <div className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-lg font-semibold text-[#00214D]">
-                      {formData.currency}
+                      GH₵
                     </p>
                   </div>
                 </div>
