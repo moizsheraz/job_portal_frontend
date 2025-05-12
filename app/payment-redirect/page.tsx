@@ -30,7 +30,7 @@ function PaymentContent() {
     lastname: '',
     email: '',
     phonenumber: '',
-    currency: 'GHS',
+    currency: 'GH₵',
   });
 
   // UI state

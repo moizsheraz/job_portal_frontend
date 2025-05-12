@@ -93,8 +93,8 @@ export default function SignupPage() {
                     Privacy Policy
                   </Link>{" "}
                   and{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-500 font-medium">
-                    Terms of Service
+                  <Link href="https://www.alljobsgh.com/legal#our-rules" className="text-blue-600 hover:text-blue-500 font-medium">
+                    Our Rules
                   </Link>.
                 </label>
               </div>
