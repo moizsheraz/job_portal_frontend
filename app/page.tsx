@@ -173,8 +173,8 @@ export default function LandingPage() {
 
                 <div className="flex flex-wrap gap-3 text-sm">
                   <span className="text-white font-medium">Trending:</span>
-                  {["full-time", "part-time", "Freelance", "internship"].map((tag, index) => (
-                    <Link 
+                  {["Full-time", "Part-time", "Freelance", "Internship"].map((tag, index) => (
+                    <Link
                       key={index} 
                       href={`/search?employmentType=${tag}`} 
                       className="px-3 py-1 bg-yellow-600 text-white rounded-full border border-yellow-800 hover:bg-yellow-900 hover:border-yellow-900 transition-colors"

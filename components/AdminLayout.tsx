@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -74,10 +74,14 @@ export default function Layout({ children }: { children: ReactNode }) {
 }
 
 function NavLink({ href, children }: { href: string; children: ReactNode }) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
   return (
     <Link
       href={href}
-      className="text-yellow-300 hover:text-yellow-100 text-sm font-semibold px-3 py-2 rounded hover:bg-yellow-600 transition"
+      className={`text-sm font-semibold px-3 py-2 rounded transition
+        ${isActive ? 'bg-yellow-600 text-white' : 'text-yellow-300 hover:text-yellow-100 hover:bg-yellow-600'}`}
     >
       {children}
     </Link>

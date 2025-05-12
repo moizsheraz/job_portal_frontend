@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
-// Define Auth status type
 interface AuthStatus {
   isAuthenticated: boolean;
   user?: {
@@ -21,16 +20,14 @@ interface AuthStatus {
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // State for auth status
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
+  const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState("");
 
-  // Check auth status on component mount
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-  // Check if user is already authenticated
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/check-auth`, {
@@ -42,7 +39,6 @@ export default function SignupPage() {
         const data = await response.json();
         setAuthStatus(data);
         
-        // If user is authenticated, redirect to dashboard
         if (data.isAuthenticated) {
           router.push('/');
         }
@@ -52,17 +48,21 @@ export default function SignupPage() {
     }
   };
 
-  // Handle Auth0 login redirect
   const handleAuth0Login = (provider?: string) => {
+    if (!agreed) {
+      setError("You must agree to the Privacy Policy and Terms.");
+      return;
+    }
+
+    setError("");
     setIsLoading(true);
-    
-    // Redirect to Auth0 login page (with optional provider parameter)
+
     const redirectUrl = provider 
-    ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login?connection=${provider}`
-    : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login`;
-    
-  window.location.href = redirectUrl;
-}
+      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login?connection=${provider}`
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/login`;
+
+    window.location.href = redirectUrl;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -77,11 +77,36 @@ export default function SignupPage() {
 
           <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200 transition-all hover:shadow-lg">
             <div className="space-y-6">
-              {/* Social Signin Buttons */}
+
+              {/* Checkbox for terms and privacy */}
+              <div className="flex items-start">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreed}
+                  onChange={() => setAgreed(!agreed)}
+                  className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
+                  I have read and agree to the{" "}
+                  <Link href="https://www.alljobsgh.com/legal#privacy-policy" target="_blank" className="text-blue-600 hover:text-blue-500 font-medium">
+                    Privacy Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/terms" className="text-blue-600 hover:text-blue-500 font-medium">
+                    Terms of Service
+                  </Link>.
+                </label>
+              </div>
+
+              {/* Show error if user hasn't agreed */}
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
               <button
                 type="button"
                 onClick={() => handleAuth0Login('google-oauth2')}
-                className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-full shadow-sm bg-white text-base font-medium text-gray-700 hover:bg-gray-50 transition-all duration-150 ease-in-out transform hover:-translate-y-0.5"
+                disabled={!agreed}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-full shadow-sm bg-white text-base font-medium text-gray-700 hover:bg-gray-50 transition-all duration-150 ease-in-out transform hover:-translate-y-0.5 ${!agreed && 'opacity-50 cursor-not-allowed'}`}
               >
                 <Image
                   src="/google.png"
@@ -92,11 +117,12 @@ export default function SignupPage() {
                 />
                 <span>Continue with Google</span>
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => handleAuth0Login()}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-base font-medium text-white bg-[#34A853] hover:bg-[#2D9348] transition-all duration-150 ease-in-out transform hover:-translate-y-0.5"
+                disabled={!agreed || isLoading}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-full shadow-sm text-base font-medium text-white bg-[#34A853] hover:bg-[#2D9348] transition-all duration-150 ease-in-out transform hover:-translate-y-0.5 ${(!agreed || isLoading) && 'opacity-50 cursor-not-allowed'}`}
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -107,35 +133,9 @@ export default function SignupPage() {
                     Redirecting...
                   </div>
                 ) : (
-                  <>
-                    <span>Sign up with Email</span>
-                  </>
+                  <span>Sign up with Email</span>
                 )}
               </button>
-            </div>
-
-            <div className="mt-8">
-              <div className="bg-gray-50 p-4 rounded-full border border-gray-100">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-700">
-                      By signing up, you agree to our{" "}
-                      <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500">
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500">
-                        Privacy Policy
-                      </Link>
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

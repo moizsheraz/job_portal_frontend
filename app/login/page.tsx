@@ -113,14 +113,6 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
-
-            <div className="mt-6 flex items-center justify-center">
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                  Forgot your password?
-                </Link>
-              </div>
-            </div>
           </div>
 
           <div className="text-center bg-white p-6 rounded-xl shadow-sm border border-gray-200">
