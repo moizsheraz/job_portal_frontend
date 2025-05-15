@@ -122,6 +122,7 @@ export default function Footer() {
             <h3 className="font-bold text-white mb-4">Company</h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li><Link href="/about" className="hover:underline hover:text-white">About Us</Link></li>
+              <li><Link href="/about" className="hover:underline hover:text-white">Download Mobile App</Link></li>
             </ul>
           </div>
 
