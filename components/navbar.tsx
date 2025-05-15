@@ -259,14 +259,13 @@ function MobileAccordion({ title, items, icon: Icon }: MobileAccordionProps) {
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 group">
-      <div className="relative overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-110">
+      <div className="relative overflow-hidden rounded-full">
         <Image 
           src="/logo.png" 
           alt="ALL JOBS Logo" 
           width={90} 
           height={90} 
           priority 
-          className="transition-transform duration-300 group-hover:scale-110"
         />
       </div>
       <span className="font-bold text-2xl tracking-tight">
