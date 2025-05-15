@@ -130,7 +130,7 @@ export default function LegalPage() {
                 <br /><br />
                 The Brightway Educational & HR Consult - Alljobsgh 
                 <br />
-                P. O. Box 583 Mamprobi, Accra Ghana W/A.
+                P. O. Box MP 583 Mamprobi, Accra Ghana W/A.
                 <br />
                 info@alljobsgh.com
                 <br /><br />
