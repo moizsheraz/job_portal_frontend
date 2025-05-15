@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../com
 export default function Footer() {
   return (
     <footer className="bg-[#042859] text-white px-6">
-      <div className="container-custom py-10 md:py-14">
+      <div className="container-custom py-10 md:py-14" style="padding-bottom: 1rem;">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Logo + Description */}
           <div className="md:col-span-2">
@@ -147,8 +147,8 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-gray-700 pt-6 mt-10 text-sm text-gray-400 text-center">
-          © {new Date().getFullYear()} AllJobsGH. All rights reserved.
+        <div className="border-t border-gray-700 pt-6 mt-10 text-sm text-gray-400 text-center" style="padding-bottom: 1rem;">
+          © {new Date().getFullYear()} AllJOBSGH. All rights reserved.
         </div>
       </div>
     </footer>
