@@ -49,7 +49,7 @@ export default function AboutPage() {
           {/* Hero Section */}
           <section className="text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-              About ALL JOBS
+              About ALLJOBSGH
             </h1>
             <p className="text-xl font-semibold text-yellow-300 max-w-2xl mx-auto">
               Product of Brightway Group of Companies Global
