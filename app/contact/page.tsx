@@ -62,8 +62,6 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form className="space-y-6" onSubmit={handleSubmit}>
-                  <input type="hidden" name="_replyto" value="moiz77131@gmail.com" />
-
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-[#00214D] mb-1">
                       Your Name
