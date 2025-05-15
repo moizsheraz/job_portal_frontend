@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import Layout from '../../../components/AdminLayout';
-import { Eye, Pencil, Trash, X, Lock, Unlock } from 'lucide-react';
+import { Eye, Pencil, Trash, X, Lock, Unlock, ArrowUp, ArrowDown } from 'lucide-react';
 
 type User = {
   _id: string;
@@ -12,11 +12,16 @@ type User = {
   isBlocked?: boolean;
 };
 
+type SortOption = 'name-asc' | 'name-desc' | 'email-asc' | 'email-desc' | 'date-asc' | 'date-desc' | 'status-asc' | 'status-desc';
+
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -37,6 +42,46 @@ export default function UserManagement() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Apply sorting and filtering whenever users, sortOption, or searchTerm changes
+    let result = [...users];
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(user => 
+        user.name.toLowerCase().includes(term) || 
+        user.email.toLowerCase().includes(term)
+      );
+    }
+    
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortOption) {
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'email-asc':
+          return a.email.localeCompare(b.email);
+        case 'email-desc':
+          return b.email.localeCompare(a.email);
+        case 'date-asc':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'date-desc':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'status-asc':
+          return (a.isBlocked ? 1 : 0) - (b.isBlocked ? 1 : 0);
+        case 'status-desc':
+          return (b.isBlocked ? 1 : 0) - (a.isBlocked ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+    
+    setFilteredUsers(result);
+  }, [users, sortOption, searchTerm]);
 
   const fetchUsers = async () => {
     try {
@@ -199,6 +244,16 @@ export default function UserManagement() {
     }
   };
 
+  const getSortIcon = (option: SortOption) => {
+    if (sortOption === option) {
+      return <ArrowUp className="h-4 w-4 ml-1 inline" />;
+    }
+    if (sortOption === option.replace('asc', 'desc') || sortOption === option.replace('desc', 'asc')) {
+      return <ArrowDown className="h-4 w-4 ml-1 inline" />;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -236,20 +291,88 @@ export default function UserManagement() {
           </div>
         )}
 
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="absolute left-3 top-2.5 text-gray-400">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="w-full sm:w-auto text-black">
+            <label htmlFor="sort" className="sr-only text-black">Sort by</label>
+            <select
+              id="sort"
+              className="block w-full text-black pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm rounded-md"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as SortOption)}
+            >
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="email-asc">Email (A-Z)</option>
+              <option value="email-desc">Email (Z-A)</option>
+              <option value="date-asc">Date (Oldest first)</option>
+              <option value="date-desc">Date (Newest first)</option>
+              <option value="status-asc">Status (Active first)</option>
+              <option value="status-desc">Status (Blocked first)</option>
+            </select>
+          </div>
+        </div>
+
         <div className="bg-white shadow overflow-hidden rounded-lg">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-[#00214D]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Username</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Joined</th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
+                    onClick={() => setSortOption(sortOption === 'name-asc' ? 'name-desc' : 'name-asc')}
+                  >
+                    <div className="flex items-center">
+                      Username
+                      {getSortIcon('name-asc')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
+                    onClick={() => setSortOption(sortOption === 'email-asc' ? 'email-desc' : 'email-asc')}
+                  >
+                    <div className="flex items-center">
+                      Email
+                      {getSortIcon('email-asc')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
+                    onClick={() => setSortOption(sortOption === 'status-asc' ? 'status-desc' : 'status-asc')}
+                  >
+                    <div className="flex items-center">
+                      Status
+                      {getSortIcon('status-asc')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
+                    onClick={() => setSortOption(sortOption === 'date-asc' ? 'date-desc' : 'date-asc')}
+                  >
+                    <div className="flex items-center">
+                      Joined
+                      {getSortIcon('date-asc')}
+                    </div>
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {user.name}
@@ -302,7 +425,7 @@ export default function UserManagement() {
           </div>
         </div>
 
-        {users.length === 0 && !loading && (
+        {filteredUsers.length === 0 && !loading && (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <p className="text-gray-500">No users found</p>
           </div>
